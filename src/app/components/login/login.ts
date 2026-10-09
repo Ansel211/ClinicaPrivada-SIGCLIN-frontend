@@ -49,7 +49,7 @@ export class LoginComponent {
     }
 
     if (!this.credentials.username.trim() || !this.credentials.password.trim()) {
-      this.errorMessage = 'Por favor, ingrese su usuario y contraseña.';
+      this.errorMessage = 'ingrese su usuario y contraseña.';
       this.cdr.detectChanges();
       return;
     }
