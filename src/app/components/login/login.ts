@@ -2,6 +2,7 @@ import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -24,7 +25,7 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef //  Inyectamos la detección de cambios
+    private cdr: ChangeDetectorRef
   ) {}
 
   irARecuperar() {
@@ -47,16 +48,14 @@ export class LoginComponent {
       event.preventDefault();
     }
 
-    //  Validación de campos vacíos
     if (!this.credentials.username.trim() || !this.credentials.password.trim()) {
       this.errorMessage = 'Por favor, ingrese su usuario y contraseña.';
-      this.cdr.detectChanges(); // Forzar actualización de pantalla al 1er clic
+      this.cdr.detectChanges();
       return;
     }
 
     this.errorMessage = '';
 
-    // 2Intento de autenticación
     this.authService.login(this.credentials).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token);
@@ -65,10 +64,16 @@ export class LoginComponent {
 
         this.router.navigate(['/dashboard']);
       },
-      error: (err) => {
-        console.error('Error de autenticación:', err);
-        this.errorMessage = 'Usuario o contraseña incorrectos.';
-        this.cdr.detectChanges(); // Forzar la aparición del cartel en el 1er clic de respuesta de la API
+      
+      error: (err: HttpErrorResponse) => {
+        console.log(err);
+        console.log('Login failed');
+        
+        // Extrae el mensaje dinámico enviado por Spring Boot o usa un fallback
+        const mensajeError = err.error?.message || 'Usuario o contraseña incorrectos.';
+        this.errorMessage = mensajeError;
+        
+        this.cdr.detectChanges();
       }
     });
   }
