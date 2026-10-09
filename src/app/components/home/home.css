@@ -27,9 +27,7 @@ main {
   letter-spacing: 0.5px;
 }
 
-/* =========================================
-   BANNER Y TRANSICIÓN DE IMÁGENES
-   ========================================= */
+/* BANNER Y TRANSICIÓN DE IMÁGENES */
 
 .hero-section {
   position: relative;
@@ -74,9 +72,7 @@ main {
   padding: 60px 0;
 }
 
-/* =========================================
-   REGLAS PARA LOS ÍCONOS Y TARJETAS INFERIORES
-   ========================================= */
+/* REGLAS PARA LOS ÍCONOS Y TARJETAS INFERIORES */
 
 .card-icon-img {
   width: 50px !important;
