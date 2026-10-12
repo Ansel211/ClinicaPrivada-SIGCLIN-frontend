@@ -1,10 +1,12 @@
+
+
 <div class="dashboard-container">
   <nav class="dash-navbar">
     <div class="nav-links">
-      <span class="nav-item active">🏠 Inicio</span>
-      <span class="nav-item">Citas</span>
-      <span class="nav-item">Pacientes</span>
-      <span class="nav-item">Médicos</span>
+      <span class="nav-item" [class.active]="seccionActual === 'inicio'" (click)="cambiarSeccion('inicio')">🏠 Inicio</span>
+      <span class="nav-item" [class.active]="seccionActual === 'citas'" (click)="cambiarSeccion('citas')">Citas</span>
+      <span class="nav-item" [class.active]="seccionActual === 'pacientes'" (click)="cambiarSeccion('pacientes')">Pacientes</span>
+      <span class="nav-item" [class.active]="seccionActual === 'medicos'" (click)="cambiarSeccion('medicos')">Médicos</span>
     </div>
     <div class="user-profile">
       <span>{{ nombreUsuario }}</span>
@@ -14,46 +16,134 @@
 
   <div class="dash-layout">
     <aside class="sidebar">
-      <div class="icon">⚙️</div>
+      <!-- Botón de configuración lateral -->
+      <div class="icon" [class.active-icon]="seccionActual === 'configuracion'" (click)="cambiarSeccion('configuracion')" style="cursor: pointer;" title="Configuración">⚙️</div>
     </aside>
 
     <main class="main-content">
-      <h1 class="dash-title">Dashboard</h1>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <p>Citas Hoy</p>
-          <h3>12</h3>
-        </div>
-        <div class="stat-card">
-          <p>Médicos Activos</p>
-          <h3>8</h3>
-        </div>
-        <div class="stat-card">
-          <p>Pacientes Atendidos</p>
-          <h3>250+</h3>
-        </div>
-      </div>
-
-      <div class="dashboard-block">
-        <h3 class="section-title">Quick Actions</h3>
-        <div class="actions-grid">
-          <button class="btn-action">Nueva Cita</button>
-          <button class="btn-action">Registrar Paciente</button>
-        </div>
-      </div>
-
-      <h3 class="section-title">Citas Próximas</h3>
-      <div class="appointments-list">
-        <div class="appointment-item">
-          <div class="linea-verde"></div>
-          <div>
-            <strong>Ana Maria Rodriguez</strong>
-            <p style="margin: 0; color: #666; font-size: 0.9rem;">Mama - 10:30 AM</p>
+      @switch (seccionActual) {
+        @case ('inicio') {
+          <h1 class="dash-title">Dashboard</h1>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <p>Citas Hoy</p>
+              <h3>12</h3>
+            </div>
+            <div class="stat-card">
+              <p>Médicos Activos</p>
+              <h3>8</h3>
+            </div>
+            <div class="stat-card">
+              <p>Pacientes Atendidos</p>
+              <h3>250+</h3>
+            </div>
           </div>
-          <span>Cardiología</span>
-          <span>Mañana, Tarde</span>
+
+          <div class="dashboard-block">
+            <h3 class="section-title">Quick Actions</h3>
+            <div class="actions-grid">
+              <button class="btn-action">Nueva Cita</button>
+              <button class="btn-action">Registrar Paciente</button>
+            </div>
+          </div>
+
+          <h3 class="section-title">Citas Próximas</h3>
+          <div class="appointments-list">
+            <div class="appointment-item">
+              <div class="linea-verde"></div>
+              <div>
+                <strong>Ana Maria Rodriguez</strong>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">Mama - 10:30 AM</p>
+              </div>
+              <span>Cardiología</span>
+              <span>Mañana, Tarde</span>
+            </div>
+          </div>
+        }
+
+
+@case ('citas') {
+  <h1 class="dash-title">Gestión de Citas (Formulario)</h1>
+  
+  <div class="appointment-form-card">
+    <h2 class="form-section-title">Asignación de Cita Médica</h2>
+
+    <form (submit)="registrarCita($event)">
+      
+      <!-- Paciente -->
+      <div class="form-group-custom">
+        <label>Paciente</label>
+        <div class="input-icon-wrapper">
+          <input type="text" class="form-control-custom" value="Ana Maria Rodriguez" readonly>
+          <span class="icon-right">🔍</span>
+        </div>
+        <span class="subtext-info">DNI: 00000000 • Edad: 23 Años</span>
+      </div>
+
+      <!-- Especialidad -->
+      <div class="form-group-custom">
+        <label>Especialidad</label>
+        <select class="form-control-custom">
+          <option value="cardiologia" selected>Cardiología</option>
+          <option value="pediatria">Pediatría</option>
+          <option value="medicina">Medicina General</option>
+          <option value="neurologia">Neurología</option>
+        </select>
+      </div>
+
+      <!-- Médico -->
+      <div class="form-group-custom">
+        <label>Médico</label>
+        <select class="form-control-custom">
+          @for (medico of medicosDisponibles; track medico.nombre) {
+            <option [value]="medico.nombre">
+              👨‍⚕️ {{ medico.nombre }} — {{ medico.especialidad }} (Disponibilidad: {{ medico.disponibilidad }})
+            </option>
+          }
+        </select>
+      </div>
+
+      <!-- Fecha y Hora (Fila dividida) -->
+      <div class="form-row-grid">
+        <div class="form-group-custom">
+          <label>Fecha</label>
+          <input type="date" class="form-control-custom" value="2026-10-15">
+        </div>
+        <div class="form-group-custom">
+          <label>Hora</label>
+          <input type="time" class="form-control-custom" value="10:30">
         </div>
       </div>
+
+      <!-- Botón Confirmar -->
+      <button type="submit" class="btn-confirm-cita">Confirmar Cita</button>
+
+    </form>
+  </div>
+}
+
+
+        @case ('pacientes') {
+          <h1 class="dash-title">Gestión de Pacientes</h1>
+          <div class="stat-card" style="background: white; padding: 20px; border-radius: 8px;">
+            <p>Directorio de pacientes registrados, historiales clínicos y datos de contacto.</p>
+          </div>
+        }
+
+        @case ('medicos') {
+          <h1 class="dash-title">Gestión de Médicos</h1>
+          <div class="stat-card" style="background: white; padding: 20px; border-radius: 8px;">
+            <p>Listado del personal médico, especialidades y horarios asignados.</p>
+          </div>
+        }
+
+        @case ('configuracion') {
+          <h1 class="dash-title">Configuración del Sistema</h1>
+          <div class="stat-card" style="background: white; padding: 20px; border-radius: 8px;">
+            <p>Opciones de perfil, cambio de contraseña, contraste y preferencias de usuario.</p>
+          </div>
+        }
+      }
     </main>
   </div>
 </div>
