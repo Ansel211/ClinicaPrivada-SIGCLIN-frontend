@@ -95,7 +95,7 @@
       <div class="form-group-custom">
         <label>Médico</label>
         <select class="form-control-custom">
-          @for (medico of medicosDisponibles; track medico.nombre) {
+          @for (medico of medicosDisponibles(); track medico.id)  {
             <option [value]="medico.nombre">
               👨‍⚕️ {{ medico.nombre }} — {{ medico.especialidad }} (Disponibilidad: {{ medico.disponibilidad }})
             </option>

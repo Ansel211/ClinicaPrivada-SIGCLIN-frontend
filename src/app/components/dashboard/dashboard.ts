@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MedicoService, Medico } from '../../services/medico.service'; // Ajusta la ruta si es necesario
+import { Component, OnInit, signal } from '@angular/core';   // agrega signal
 
 @Component({
   selector: 'app-dashboard',
@@ -15,7 +16,7 @@ export class DashboardComponent implements OnInit {
   seccionActual: string = 'inicio';
 
   // se guardan los medicos que vengan de Supabase a travs de backend
-  medicosDisponibles: Medico[] = [];
+ medicosDisponibles = signal<Medico[]>([]); 
 
   constructor(
     private router: Router,
@@ -34,9 +35,9 @@ export class DashboardComponent implements OnInit {
 
   cargarMedicos(): void {
     this.medicoService.listarMedicos().subscribe({
-      next: (data) => {
-        this.medicosDisponibles = data;
-      },
+       next: (data) => {
+     this.medicosDisponibles.set(data);                         
+    },
       error: (err) => {
         console.error('Error al cargar los médicos desde la BD:', err);
       }
@@ -57,3 +58,5 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 }
+
+

@@ -66,15 +66,11 @@ export class LoginComponent {
       },
       
       error: (err: HttpErrorResponse) => {
-        console.log(err);
-        console.log('Login failed');
-        
-        // Extrae el mensaje dinámico enviado por Spring Boot o usa un fallback
-        const mensajeError = err.error?.message || 'Usuario o contraseña incorrectos.';
-        this.errorMessage = mensajeError;
-        
-        this.cdr.detectChanges();
-      }
+  this.errorMessage = err.status === 0
+    ? 'No se pudo conectar con el servidor.'
+    : (err.error?.message || 'Ocurrió un error inesperado.');
+  this.cdr.detectChanges();
+}
     });
   }
 }
