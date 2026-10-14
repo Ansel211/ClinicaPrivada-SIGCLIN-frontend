@@ -1,18 +1,31 @@
 
 
 <div class="dashboard-container">
-  <nav class="dash-navbar">
-    <div class="nav-links">
-      <span class="nav-item" [class.active]="seccionActual === 'inicio'" (click)="cambiarSeccion('inicio')">🏠 Inicio</span>
-      <span class="nav-item" [class.active]="seccionActual === 'citas'" (click)="cambiarSeccion('citas')">Citas</span>
-      <span class="nav-item" [class.active]="seccionActual === 'pacientes'" (click)="cambiarSeccion('pacientes')">Pacientes</span>
-      <span class="nav-item" [class.active]="seccionActual === 'medicos'" (click)="cambiarSeccion('medicos')">Médicos</span>
+  <header class="header py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+      <!-- Identidad SIGCLIN -->
+      <div class="brand d-flex align-items-center gap-3">
+        <span class="logo-text">SIGCLIN</span>
+        <span class="app-title text-uppercase border-start ps-3 border-secondary fw-bold">Sistema de Gestión de Clínicas</span>
+      </div>
+
+      <!-- Secciones de navegación -->
+      <div class="nav-links d-flex gap-4">
+        <span class="nav-item" [class.active]="seccionActual === 'inicio'" (click)="cambiarSeccion('inicio')">Inicio</span>
+        <span class="nav-item" [class.active]="seccionActual === 'citas'" (click)="cambiarSeccion('citas')">Citas</span>
+        <span class="nav-item" [class.active]="seccionActual === 'pacientes'" (click)="cambiarSeccion('pacientes')">Pacientes</span>
+        <span class="nav-item" [class.active]="seccionActual === 'medicos'" (click)="cambiarSeccion('medicos')">Médicos</span>
+      </div>
+
+      <!-- Usuario y Botón -->
+      <div class="d-flex align-items-center gap-3">
+        <span class="text-white fw-bold">{{ nombreUsuario }}</span>
+        <button (click)="cerrarSesion()" class="btn btn-primary fw-bold px-4">Cerrar Sesión</button>
+      </div>
     </div>
-    <div class="user-profile">
-      <span>{{ nombreUsuario }}</span>
-      <button (click)="cerrarSesion()" class="btn btn-sm btn-outline-danger ms-3">Cerrar Sesión</button>
-    </div>
-  </nav>
+  </header>
+
+
 
   <div class="dash-layout">
     <aside class="sidebar">
@@ -42,8 +55,8 @@
           <div class="dashboard-block">
             <h3 class="section-title">Quick Actions</h3>
             <div class="actions-grid">
-              <button class="btn-action">Nueva Cita</button>
-              <button class="btn-action">Registrar Paciente</button>
+              <button class="btn-action" (click)="cambiarSeccion('citas')">Nueva Cita</button>
+              <button class="btn-action" (click)="cambiarSeccion('pacientes')">Registrar Paciente</button>
             </div>
           </div>
 

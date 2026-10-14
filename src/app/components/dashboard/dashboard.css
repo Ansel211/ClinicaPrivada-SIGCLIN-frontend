@@ -5,38 +5,111 @@
 }
 
 /* Navbar superior */
-.dash-navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #0d6efd;
-  color: white;
-  padding: 12px 24px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* Cabecera idéntica al Login con línea inferior en celeste */
+.header {
+  background-color: #0b1a30; /* Tono azul marino muy oscuro del Login */
+  border-bottom: 3px solid #00a8e8; 
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Tipografía de la marca SIGCLIN */
+.logo-text {
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.app-title {
+  color: #38bdf8;; /* Tono celeste de 'Sistema de Gestión de Clínicas' */
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Estilos para las pestañas de navegación */
+.nav-item {
+  cursor: pointer;
+  font-weight: 500;
+  color: #d0e1f9;
+  transition: all 0.2s ease;
+  padding-bottom: 2px;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  color: #ffffff;
+  border-bottom: 2px solid #00a8e8;
+  opacity: 1;
+}
+
+/* Marca SIGCLIN */
+.dash-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-text {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.logo-subtext {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #00a8e8; /* Celeste característico de SIGCLIN */
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Enlaces del Menú */
 .nav-links {
   display: flex;
-  gap: 20px;
+  gap: 25px;
 }
 
 .nav-item {
   cursor: pointer;
   font-weight: 500;
-  opacity: 0.85;
+  font-size: 0.95rem;
+  color: #c0d1e5;
+  transition: all 0.2s ease;
+  padding-bottom: 4px;
 }
 
-.nav-item:hover, .nav-item.active {
+.nav-item:hover,
+.nav-item.active {
+  color: #ffffff;
+  border-bottom: 2px solid #00a8e8;
   opacity: 1;
-  border-bottom: 2px solid white;
 }
 
+/* Sección Usuario y Botón */
 .user-profile {
   display: flex;
   align-items: center;
+  gap: 15px;
   font-weight: 600;
+  color: #ffffff;
 }
 
+.btn-logout {
+  background-color: #00a8e8;
+  color: #ffffff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-logout:hover {
+  background-color: #0081b4;
+}
 /* Layout Principal */
 .dash-layout {
   display: flex;
