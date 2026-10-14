@@ -65,6 +65,7 @@ export class DashboardComponent implements OnInit {
   }
 
   const payload = {
+    nombrePaciente: this.nuevaCita.nombrePaciente,
     idMedico: Number(this.nuevaCita.idMedico),
     fecha: this.nuevaCita.fecha,
     hora: this.nuevaCita.hora
