@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MedicoService, Medico } from '../../services/medico.service'; // Ajusta la ruta si es necesario
+import { MedicoService, Medico } from '../../services/medico.service';  // Ajusta la ruta si es necesario
+import { CitaService } from '../../services/cita.service'; 
 import { Component, OnInit, signal } from '@angular/core';   // agrega signal
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
@@ -16,10 +18,17 @@ export class DashboardComponent implements OnInit {
 
   // se guardan los medicos que vengan de Supabase a travs de backend
  medicosDisponibles = signal<Medico[]>([]); 
-
+ totalCitasPendientes = signal<number>(1);
+ nuevaCita = {
+    nombrePaciente: '',
+    idMedico: '',
+    fecha: '',
+    hora: ''
+  };
   constructor(
     private router: Router,
-    private medicoService: MedicoService // Inyectamos el servicio
+    private medicoService: MedicoService, // Inyectamos el servicio
+    private citaService: CitaService
   ) {}
 
   ngOnInit(): void {
@@ -48,9 +57,33 @@ export class DashboardComponent implements OnInit {
   }
 
   registrarCita(event: Event): void {
-    event.preventDefault();
-    alert('¡Cita registrada con éxito (Modo simulación)!');
+  event.preventDefault();
+
+  if (!this.nuevaCita.idMedico || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
+    alert('Por favor complete todos los campos requeridos.');
+    return;
   }
+
+  const payload = {
+    idMedico: Number(this.nuevaCita.idMedico),
+    fecha: this.nuevaCita.fecha,
+    hora: this.nuevaCita.hora
+  };
+
+  // Petición real HTTP a la BD
+  this.citaService.registrarCita(payload).subscribe({
+    next: (response) => {
+      alert('¡Cita registrada con éxito en la base de datos!');
+      this.totalCitasPendientes.update((val) => val + 1);
+      this.nuevaCita = { nombrePaciente: '', idMedico: '', fecha: '', hora: '' };
+      this.cambiarSeccion('inicio');
+    },
+    error: (err) => {
+      console.error('Error al guardar la cita:', err);
+      alert('Hubo un error al registrar la cita en la base de datos.');
+    }
+  });
+}
 
   cerrarSesion(): void {
     localStorage.clear();

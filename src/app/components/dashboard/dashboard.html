@@ -40,11 +40,11 @@
           <div class="stats-grid">
             <div class="stat-card">
               <p>Citas Hoy</p>
-              <h3>12</h3>
+              <h3>{{ totalCitasPendientes() }}</h3>
             </div>
             <div class="stat-card">
               <p>Médicos Activos</p>
-              <h3>8</h3>
+              <h3>{{ medicosDisponibles().length }}</h3>
             </div>
             <div class="stat-card">
               <p>Pacientes Atendidos</p>
@@ -82,56 +82,47 @@
     <h2 class="form-section-title">Asignación de Cita Médica</h2>
 
     <form (submit)="registrarCita($event)">
-      
-      <!-- Paciente -->
-      <div class="form-group-custom">
-        <label>Paciente</label>
-        <div class="input-icon-wrapper">
-          <input type="text" class="form-control-custom" value="Ana Maria Rodriguez" readonly>
-          <span class="icon-right">🔍</span>
-        </div>
-        <span class="subtext-info">DNI: 00000000 • Edad: 23 Años</span>
-      </div>
+  <!-- Nombre del Paciente -->
+  <div class="mb-3">
+    <label class="form-label fw-bold">Nombre del Paciente</label>
+    <input 
+      type="text" 
+      name="nombrePaciente" 
+      [(ngModel)]="nuevaCita.nombrePaciente" 
+      class="form-control" 
+      placeholder="Ingrese el nombre del paciente" 
+      required />
+  </div>
 
-      <!-- Especialidad -->
-      <div class="form-group-custom">
-        <label>Especialidad</label>
-        <select class="form-control-custom">
-          <option value="cardiologia" selected>Cardiología</option>
-          <option value="pediatria">Pediatría</option>
-          <option value="medicina">Medicina General</option>
-          <option value="neurologia">Neurología</option>
-        </select>
-      </div>
+  <!-- Selección de Médico -->
+  <div class="mb-3">
+    <label class="form-label fw-bold">Médico</label>
+    <select name="idMedico" [(ngModel)]="nuevaCita.idMedico" class="form-select" required>
+      <option value="" disabled selected>Seleccione un médico</option>
+      @for (medico of medicosDisponibles(); track medico.id) {
+        <option [value]="medico.id">
+          {{ medico.nombre }} — {{ medico.especialidad }}
+        </option>
+      }
+    </select>
+  </div>
 
-      <!-- Médico -->
-      <div class="form-group-custom">
-        <label>Médico</label>
-        <select class="form-control-custom">
-          @for (medico of medicosDisponibles(); track medico.id)  {
-            <option [value]="medico.nombre">
-              👨‍⚕️ {{ medico.nombre }} — {{ medico.especialidad }} (Disponibilidad: {{ medico.disponibilidad }})
-            </option>
-          }
-        </select>
-      </div>
+  <!-- Fecha y Hora -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Fecha</label>
+      <input type="date" name="fecha" [(ngModel)]="nuevaCita.fecha" class="form-control" required />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label fw-bold">Hora</label>
+      <input type="time" name="hora" [(ngModel)]="nuevaCita.hora" class="form-control" required />
+    </div>
+  </div>
 
-      <!-- Fecha y Hora (Fila dividida) -->
-      <div class="form-row-grid">
-        <div class="form-group-custom">
-          <label>Fecha</label>
-          <input type="date" class="form-control-custom" value="2026-10-15">
-        </div>
-        <div class="form-group-custom">
-          <label>Hora</label>
-          <input type="time" class="form-control-custom" value="10:30">
-        </div>
-      </div>
-
-      <!-- Botón Confirmar -->
-      <button type="submit" class="btn-confirm-cita">Confirmar Cita</button>
-
-    </form>
+  <button type="submit" class="btn btn-primary fw-bold w-100 py-2">
+    Confirmar Cita
+  </button>
+</form>
   </div>
 }
 
@@ -154,6 +145,45 @@
           <h1 class="dash-title">Configuración del Sistema</h1>
           <div class="stat-card" style="background: white; padding: 20px; border-radius: 8px;">
             <p>Opciones de perfil, cambio de contraseña, contraste y preferencias de usuario.</p>
+          </div>
+        }
+
+        @case ('citas') {
+          <h1 class="dash-title">Gestión de Citas Médicas</h1>
+
+          <div class="stat-card" style="background: white; padding: 25px; border-radius: 12px; max-width: 650px; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 20px; color: #0b1a30; font-weight: 700;">Programar Nueva Cita</h3>
+
+            <form (submit)="registrarCita($event)">
+      <!-- Selección de Médico traído de la BD -->
+              <div class="mb-3">
+                <label class="form-label fw-bold">Médico y Especialidad</label>
+                <select name="idMedico" [(ngModel)]="nuevaCita.idMedico" class="form-select" required>
+                  <option value="" disabled selected>Seleccione un médico</option>
+                  @for (medico of medicosDisponibles(); track medico.id) {
+                    <option [value]="medico.id">
+                      {{ medico.nombre }} — {{ medico.especialidad }}
+                    </option>
+                  }
+                </select>
+             </div>
+
+      <!-- Fecha y Hora -->
+             <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Fecha</label>
+                  <input type="date" name="fecha" [(ngModel)]="nuevaCita.fecha" class="form-control" required />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Hora</label>
+                  <input type="time" name="hora" [(ngModel)]="nuevaCita.hora" class="form-control" required />
+                </div>
+             </div>
+
+             <button type="submit" class="btn btn-primary fw-bold w-100 py-2 mt-2">
+                Confirmar Cita
+              </button>
+            </form>
           </div>
         }
       }
