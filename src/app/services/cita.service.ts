@@ -26,4 +26,8 @@ export class CitaService {
   listarCitas(): Observable<any[]> {
     return this.http.post<any[]>(`${this.apiUrl}/listar`, {});
   }
+
+  obtenerTotalCitasHoy(): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/hoy/total`);
+  }
 }

@@ -15,6 +15,7 @@ import { Component, OnInit, signal } from '@angular/core';   // agrega signal
 export class DashboardComponent implements OnInit {
   nombreUsuario: string = 'Usuario';
   seccionActual: string = 'inicio';
+  fechaMinima: string = '';
 
   // se guardan los medicos que vengan de Supabase a travs de backend
  medicosDisponibles = signal<Medico[]>([]); 
@@ -32,6 +33,13 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const hoy = new Date();
+    const year = hoy.getFullYear();
+    const month = String(hoy.getMonth() + 1).padStart(2, '0');
+    const day = String(hoy.getDate()).padStart(2, '0');
+
+    this.fechaMinima = `${year}-${month}-${day}`;
+    this.nuevaCita.fecha = this.fechaMinima;
     const usuarioGuardado = localStorage.getItem('nombreCompleto');
     if (usuarioGuardado) {
       this.nombreUsuario = usuarioGuardado;
@@ -39,7 +47,27 @@ export class DashboardComponent implements OnInit {
 
     // Cargamos los medicos desde la base de datos al iniciar el componente
     this.cargarMedicos();
+    this.cargarContadorCitasHoy();
   }
+
+  cargarContadorCitasHoy(): void {
+  this.citaService.obtenerTotalCitasHoy().subscribe({
+    next: (total: number) => {
+      this.totalCitasPendientes.set(total); // Actualiza el signal con la cantidad real de la BD
+    },
+    error: (err) => {
+      console.error('Error al obtener citas de hoy:', err);
+    }
+  });
+}
+  
+  validarFormatoNombre(event: Event): void {
+
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
+    this.nuevaCita.nombrePaciente = input.value;
+
+  } 
 
   cargarMedicos(): void {
     this.medicoService.listarMedicos().subscribe({
@@ -58,14 +86,32 @@ export class DashboardComponent implements OnInit {
 
   registrarCita(event: Event): void {
   event.preventDefault();
+  const nombreLimpio = this.nuevaCita.nombrePaciente.trim();
 
+  if (!nombreLimpio || nombreLimpio.includes(' ') || nombreLimpio.length < 2) {
+    alert('Por favor ingrese un solo nombre válido (mínimo 2 letras, sin espacios).');
+    return;
+  } 
+
+  if (!nombreLimpio) {
+    alert('Por favor ingrese un nombre de paciente válido (solo letras).');
+    return;
+  }
   if (!this.nuevaCita.idMedico || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
     alert('Por favor complete todos los campos requeridos.');
     return;
   }
 
+  const fechaSeleccionada = new Date(`${this.nuevaCita.fecha}T00:00:00`);
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  if (isNaN(fechaSeleccionada.getTime()) || fechaSeleccionada < hoy) {
+    alert('Por favor seleccione una fecha válida (no se permiten fechas pasadas).');
+    return;
+  }
   const payload = {
-    nombrePaciente: this.nuevaCita.nombrePaciente,
+    nombrePaciente: nombreLimpio,
     idMedico: Number(this.nuevaCita.idMedico),
     fecha: this.nuevaCita.fecha,
     hora: this.nuevaCita.hora
