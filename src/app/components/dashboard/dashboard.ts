@@ -1,4 +1,3 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MedicoService, Medico } from '../../services/medico.service'; // Ajusta la ruta si es necesario

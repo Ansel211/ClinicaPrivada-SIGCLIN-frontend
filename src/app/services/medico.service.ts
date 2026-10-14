@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Medico {
@@ -18,6 +18,10 @@ export class MedicoService {
   constructor(private http: HttpClient) {}
 
   listarMedicos(): Observable<Medico[]> {
-    return this.http.get<Medico[]>(this.apiUrl);
+    const token = localStorage.getItem('token'); 
+    const header = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<Medico[]>(this.apiUrl, { headers: header });
   }
 }
