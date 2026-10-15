@@ -3,8 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MedicoService, Medico } from '../../services/medico.service';  // Ajusta la ruta si es necesario
 import { CitaService } from '../../services/cita.service'; 
-import { Component, OnInit, signal } from '@angular/core';   // agrega signal
-
+import { Component, inject, OnInit, signal } from '@angular/core';   // agrega signal
+import { ToastService } from '../../services/toast.service';
+ 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -13,6 +14,7 @@ import { Component, OnInit, signal } from '@angular/core';   // agrega signal
   styleUrl: './dashboard.css'
 })
 export class DashboardComponent implements OnInit {
+  private toastService = inject(ToastService);
   nombreUsuario: string = 'Usuario';
   seccionActual: string = 'inicio';
   fechaMinima: string = '';
@@ -89,16 +91,16 @@ export class DashboardComponent implements OnInit {
   const nombreLimpio = this.nuevaCita.nombrePaciente.trim();
 
   if (!nombreLimpio || nombreLimpio.includes(' ') || nombreLimpio.length < 2) {
-    alert('Por favor ingrese un solo nombre válido (mínimo 2 letras, sin espacios).');
+    this.toastService.show('Por favor ingrese un solo nombre válido (mínimo 2 letras, sin espacios).', 'danger');
     return;
   } 
 
   if (!nombreLimpio) {
-    alert('Por favor ingrese un nombre de paciente válido (solo letras).');
+    this.toastService.show('Por favor ingrese un nombre de paciente válido (solo letras).', 'danger');
     return;
   }
   if (!this.nuevaCita.idMedico || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
-    alert('Por favor complete todos los campos requeridos.');
+    this.toastService.show('Por favor complete todos los campos requeridos.', 'danger');
     return;
   }
 
@@ -107,7 +109,7 @@ export class DashboardComponent implements OnInit {
   hoy.setHours(0, 0, 0, 0);
 
   if (isNaN(fechaSeleccionada.getTime()) || fechaSeleccionada < hoy) {
-    alert('Por favor seleccione una fecha válida (no se permiten fechas pasadas).');
+    this.toastService.show('Por favor seleccione una fecha válida (no se permiten fechas pasadas).', 'danger');
     return;
   }
   const payload = {
@@ -120,14 +122,14 @@ export class DashboardComponent implements OnInit {
   // Petición real HTTP a la BD
   this.citaService.registrarCita(payload).subscribe({
     next: (response) => {
-      alert('¡Cita registrada con éxito en la base de datos!');
+      this.toastService.show('¡Cita registrada con éxito en la base de datos!', 'success');
       this.totalCitasPendientes.update((val) => val + 1);
       this.nuevaCita = { nombrePaciente: '', idMedico: '', fecha: '', hora: '' };
       this.cambiarSeccion('inicio');
     },
     error: (err) => {
       console.error('Error al guardar la cita:', err);
-      alert('Hubo un error al registrar la cita en la base de datos.');
+      this.toastService.show('Hubo un error al registrar la cita en la base de datos.', 'danger');
     }
   });
 }

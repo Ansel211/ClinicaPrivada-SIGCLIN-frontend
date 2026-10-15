@@ -19,9 +19,7 @@ export class MedicoService {
 
   listarMedicos(): Observable<Medico[]> {
     const token = localStorage.getItem('token'); 
-    const header = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+    const header = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<Medico[]>(this.apiUrl, { headers: header });
   }
 }

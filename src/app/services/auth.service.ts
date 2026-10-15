@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-
+import { StorageService } from './storage.service';
 export interface AuthRequest {
   username: string;
   password: string;
@@ -31,5 +31,9 @@ export class AuthService {
         }
       })
     );
+  }
+
+  logout(): void {
+  localStorage.removeItem('user_token');
   }
 }
