@@ -1,0 +1,48 @@
+<h1 class="dash-title">Gestión de Citas (Formulario)</h1>
+
+<div class="appointment-form-card">
+  <h2 class="form-section-title">Asignación de Cita Médica</h2>
+
+  <form (submit)="registrarCita($event)">
+    <!-- Nombre del Paciente -->
+    <div class="mb-3">
+      <label class="form-label fw-bold">Nombre del Paciente</label>
+      <input 
+        type="text" 
+        name="nombrePaciente" 
+        [(ngModel)]="nuevaCita.nombrePaciente" 
+        class="form-control" 
+        placeholder="Ingrese el nombre del paciente" 
+        required />
+    </div>
+
+    <!-- Selección de Médico -->
+    <div class="mb-3">
+      <label class="form-label fw-bold">Médico</label>
+      <select name="idMedico" [(ngModel)]="nuevaCita.idMedico" class="form-select" required>
+        <option value="" disabled selected>Seleccione un médico</option>
+        @for (medico of medicosDisponibles(); track medico.id) {
+          <option [value]="medico.id">
+            {{ medico.nombre }} — {{ medico.especialidad }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <!-- Fecha y Hora -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Fecha</label>
+        <input type="date" name="fecha" [min]="fechaMinima" [(ngModel)]="nuevaCita.fecha" class="form-control" required />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-bold">Hora</label>
+        <input type="time" name="hora" [(ngModel)]="nuevaCita.hora" class="form-control" required />
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary fw-bold w-100 py-2">
+      Confirmar Cita
+    </button>
+  </form>
+</div>

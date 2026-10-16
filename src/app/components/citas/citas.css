@@ -1,0 +1,22 @@
+.dash-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.appointment-form-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 650px; /* <--- Esto es lo que limita el ancho de la tarjeta */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #eaeaea;
+}
+
+.form-section-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2b1b3d;
+  margin-top: 0;
+  margin-bottom: 24px;
+}

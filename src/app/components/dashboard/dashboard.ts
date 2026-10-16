@@ -5,11 +5,14 @@ import { MedicoService, Medico } from '../../services/medico.service';  // Ajust
 import { CitaService } from '../../services/cita.service'; 
 import { Component, inject, OnInit, signal } from '@angular/core';   // agrega signal
 import { ToastService } from '../../services/toast.service';
- 
+import { Pacientes } from '../pacientes/pacientes';
+import { Medicos } from '../medicos/medicos';
+import { Citas } from '../citas/citas';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports:  [CommonModule, FormsModule, Pacientes, Medicos, Citas],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
