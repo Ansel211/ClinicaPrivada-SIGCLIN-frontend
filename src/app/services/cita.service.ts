@@ -19,15 +19,15 @@ export class CitaService {
 
   constructor(private http: HttpClient) {}
 
-  registrarCita(citaData: CitaRequest): Observable<any> {
+  registrarCita(citaData: CitaRequest): Observable<any> { //Envía una petición POST con los datos de la nueva cita
     return this.http.post<any>(this.apiUrl, citaData);
   }
 
-  listarCitas(): Observable<any[]> {
+  listarCitas(): Observable<any[]> { //Envía una petición POST a /api/citas/listar
     return this.http.post<any[]>(`${this.apiUrl}/listar`, {});
   }
 
-  obtenerTotalCitasHoy(): Observable<number> {
+  obtenerTotalCitasHoy(): Observable<number> { //Envía una petición GET a /api/citas/hoy/total para obtener el número de citas agendadas
     return this.http.get<number>(`${this.apiUrl}/hoy/total`);
   }
 }

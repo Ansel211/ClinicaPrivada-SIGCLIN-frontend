@@ -17,7 +17,7 @@ export class MedicoService {
 
   constructor(private http: HttpClient) {}
 
-  listarMedicos(): Observable<Medico[]> {
+  listarMedicos(): Observable<Medico[]> { //Realiza una petición GET a la API de médicos. Lee el token almacenado manualmente desde localStorage y construye el encabezado
     const token = localStorage.getItem('token'); 
     const header = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.get<Medico[]>(this.apiUrl, { headers: header });

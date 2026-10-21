@@ -13,11 +13,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Rutas públicas que NO requieren enviar Token Bearer
+  // Define las URLs públicas que no necesitan token de seguridad
   const excludedPaths = [
     '/auth/login',
     '/auth/refresh',
-    '/api/citas' // Permite enviar la cita sin forzar token si es pública
+    '/api/citas',
+    '/api/medicos'
   ];
 
   const shouldExclude = excludedPaths.some(path => req.url.includes(path));

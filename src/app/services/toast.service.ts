@@ -32,7 +32,7 @@ export class ToastService {
     this.show(message, 'danger');
   }
 
-  remove(toast: Toast) {
+  remove(toast: Toast) { //Elimina una notificación de la lista cuando caduca o el usuario la cierra.
     this.toasts.update((current) => current.filter((t) => t !== toast));
   }
 }

@@ -1,101 +1,29 @@
+<div class="d-flex" id="wrapper">
+  <!-- Sidebar / Menú Lateral -->
+  <div class="bg-dark text-white p-3 min-vh-100" style="width: 250px;">
+    <h4 class="text-center py-3">SIGCLIN</h4>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a routerLink="/dashboard/citas" routerLinkActive="active" class="nav-link text-white">
+          <i class="bi bi-calendar-event me-2"></i> Citas
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="/dashboard/medicos" routerLinkActive="active" class="nav-link text-white">
+          <i class="bi bi-person-badge me-2"></i> Médicos
+        </a>
+      </li>
+    </ul>
+    <hr>
+    <button (click)="cerrarSesion()" class="btn btn-outline-danger w-100">
+      <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+    </button>
+  </div>
 
-
-<div class="dashboard-container">
-  <header class="header py-3">
-    <div class="container d-flex justify-content-between align-items-center">
-      <!-- Identidad SIGCLIN -->
-      <div class="brand d-flex align-items-center gap-3">
-        <span class="logo-text">SIGCLIN</span>
-        <span class="app-title text-uppercase border-start ps-3 border-secondary fw-bold">Sistema de Gestión de Clínicas</span>
-      </div>
-
-      <!-- Secciones de navegación -->
-      <div class="nav-links d-flex gap-4">
-        <span class="nav-item" [class.active]="seccionActual === 'inicio'" (click)="cambiarSeccion('inicio')">Inicio</span>
-        <span class="nav-item" [class.active]="seccionActual === 'citas'" (click)="cambiarSeccion('citas')">Citas</span>
-        <span class="nav-item" [class.active]="seccionActual === 'pacientes'" (click)="cambiarSeccion('pacientes')">Pacientes</span>
-        <span class="nav-item" [class.active]="seccionActual === 'medicos'" (click)="cambiarSeccion('medicos')">Médicos</span>
-      </div>
-
-      <!-- Usuario y Botón -->
-      <div class="d-flex align-items-center gap-3">
-        <span class="text-white fw-bold">{{ nombreUsuario }}</span>
-        <button (click)="cerrarSesion()" class="btn btn-primary fw-bold px-4">Cerrar Sesión</button>
-      </div>
-    </div>
-  </header>
-
-
-
-  <div class="dash-layout">
-    <aside class="sidebar">
-      <!-- Botón de configuración lateral -->
-      <div class="icon" [class.active-icon]="seccionActual === 'configuracion'" (click)="cambiarSeccion('configuracion')" style="cursor: pointer;" title="Configuración">⚙️</div>
-    </aside>
-
-    <main class="main-content">
-      @switch (seccionActual) {
-        @case ('inicio') {
-          <h1 class="dash-title">Dashboard</h1>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <p>Citas Hoy</p>
-              <h3>{{ totalCitasPendientes() }}</h3>
-            </div>
-            <div class="stat-card">
-              <p>Médicos Activos</p>
-              <h3>{{ medicosDisponibles().length }}</h3>
-            </div>
-            <div class="stat-card">
-              <p>Pacientes Atendidos</p>
-              <h3>250+</h3>
-            </div>
-          </div>
-
-          <div class="dashboard-block">
-            <h3 class="section-title">Quick Actions</h3>
-            <div class="actions-grid">
-              <button class="btn-action" (click)="cambiarSeccion('citas')">Nueva Cita</button>
-              <button class="btn-action" (click)="cambiarSeccion('pacientes')">Registrar Paciente</button>
-            </div>
-          </div>
-
-          <h3 class="section-title">Citas Próximas</h3>
-          <div class="appointments-list">
-            <div class="appointment-item">
-              <div class="linea-verde"></div>
-              <div>
-                <strong>Ana Maria Rodriguez</strong>
-                <p style="margin: 0; color: #666; font-size: 0.9rem;">Mama - 10:30 AM</p>
-              </div>
-              <span>Cardiología</span>
-              <span>Mañana, Tarde</span>
-            </div>
-          </div>
-        }
-
-
-@case ('citas') {
-  <app-citas></app-citas>
-}
-
-
-@case ('pacientes') {
-          <app-pacientes></app-pacientes>
-        }
-
-@case ('medicos') {
-          <app-medicos></app-medicos>
-        }
-
-@case ('configuracion') {
-          <h1 class="dash-title">Configuración del Sistema</h1>
-          <div class="stat-card" style="background: white; padding: 20px; border-radius: 8px;">
-            <p>Opciones de perfil, cambio de contraseña, contraste y preferencias de usuario.</p>
-          </div>
-        }
-      }
-        
-    </main>
+  <!-- Contenido Principal Dinámico -->
+  <div class="flex-grow-1 p-4 bg-light">
+    <!-- Aquí Angular renderiza la pantalla correspondiente (Citas o Médicos) según la URL -->
+    <router-outlet></router-outlet>
   </div>
 </div>

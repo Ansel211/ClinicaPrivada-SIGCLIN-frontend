@@ -8,7 +8,7 @@ export class LoadingService {
   private activeRequest = 0;
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable().pipe(observeOn(asapScheduler));
-
+//activerquest nos indica cuantas llamadas al backend se estan realizando 
   show() {
     this.activeRequest++;
     if (this.activeRequest === 1) {
