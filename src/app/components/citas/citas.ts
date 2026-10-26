@@ -13,6 +13,7 @@ import { ToastService } from '../../services/toast.service';
   styleUrl: './citas.css'
 })
 export class CitasComponent implements OnInit {
+  fechaMinima: string = new Date().toISOString().split('T')[0];
   private citaService = inject(CitaService);
   private medicoService = inject(MedicoService);
   private toastService = inject(ToastService);
@@ -46,30 +47,42 @@ export class CitasComponent implements OnInit {
     this.nuevaCita.nombrePaciente = input.value;
   }
 
-  registrarCita(event: Event): void {
-    event.preventDefault();
+ registrarCita(event: Event): void {
+  event.preventDefault();
 
-    if (!this.nuevaCita.nombrePaciente || !this.nuevaCita.idMedico || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
-      this.toastService.show('Por favor completa todos los campos de la cita.', 'warning');
-      return;
-    }
+  const idNum = parseInt(this.nuevaCita.idMedico, 10);
 
-    const payload = {
-      nombrePaciente: this.nuevaCita.nombrePaciente.trim(),
-      idMedico: Number(this.nuevaCita.idMedico),
-      fecha: this.nuevaCita.fecha,
-      hora: this.nuevaCita.hora
-    };
+  if (!this.nuevaCita.nombrePaciente || isNaN(idNum) || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
+    this.toastService.show('Por favor selecciona un médico válido y completa todos los campos.', 'warning');
+    return;
+  }
+
+  const payload = {
+    nombrePaciente: this.nuevaCita.nombrePaciente.trim(),
+    medico: {
+      id: idNum
+    },
+    fecha: this.nuevaCita.fecha,
+    hora: this.nuevaCita.hora
+  };
+
+  console.log('Payload corregido enviando a Java:', payload);
 
     this.citaService.registrarCita(payload).subscribe({
-      next: () => {
-        this.toastService.show('¡Cita registrada con éxito en la base de datos!', 'success');
-        this.nuevaCita = { nombrePaciente: '', idMedico: '', fecha: '', hora: '' };
-      },
-      error: (err) => {
-        console.error('Error al guardar la cita:', err);
-        this.toastService.show('Hubo un error al registrar la cita en la base de datos.', 'danger');
-      }
-    });
-  }
+     next: () => {
+      this.toastService.show('¡Cita registrada con éxito en la base de datos!', 'success');
+      this.nuevaCita = { nombrePaciente: '', idMedico: '', fecha: '', hora: '' };
+    },
+    error: (err) => {
+      console.error('Error al guardar la cita:', err);
+    
+    // Extrae el mensaje de texto del backend o usa una alternativa limpia
+      const mensaje = typeof err.error === 'string' 
+        ? err.error 
+        : (err.error?.message || 'Error al guardar la cita');
+
+      this.toastService.show(mensaje, 'danger');
+    }
+  });
+}
 }

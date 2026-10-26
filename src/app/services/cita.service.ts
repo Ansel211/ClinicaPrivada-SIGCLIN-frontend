@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface CitaRequest {
-  pacienteDni?: string;
-  idMedico: number;
+  nombrePaciente: string;
+  medico: {
+    id: number;
+  };
   fecha: string;
   hora: string;
-  especialidad?: string;
 }
 
 @Injectable({

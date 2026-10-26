@@ -21,7 +21,7 @@
           <tbody>
             <!-- Iteración sobre la lista de médicos -->
             <tr *ngFor="let m of listaMedicos(); let i = index">
-              <td>{{ i + 1 }}</td>
+              <td>{{ m.id }}</td>
               <td class="fw-bold">{{ m.nombre }}</td>
               <td>
                 <span class="badge bg-info text-dark">{{ m.especialidad }}</span>

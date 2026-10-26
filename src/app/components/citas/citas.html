@@ -17,18 +17,17 @@
   <select class="form-select" [(ngModel)]="nuevaCita.idMedico" name="idMedico" required>
     <option value="" disabled selected>Seleccione un médico</option>
     @for (medico of medicosDisponibles(); track medico.id) {
-      <option [value]="medico.id">
+      <option [value]="medico.id || medico.idMedico">
         Dr(a). {{ medico.nombre }} - {{ medico.especialidad }}
       </option>
     }
   </select>
 </div>
-
   <!-- Fecha y Hora -->
   <div class="row">
     <div class="col-md-6 mb-3">
       <label class="form-label">Fecha</label>
-      <input type="date" class="form-control" [(ngModel)]="nuevaCita.fecha" name="fecha" required>
+      <input type="date" class="form-control" [(ngModel)]="nuevaCita.fecha" name="fecha" [min]="fechaMinima" required>
     </div>
     <div class="col-md-6 mb-3">
       <label class="form-label">Hora</label>
