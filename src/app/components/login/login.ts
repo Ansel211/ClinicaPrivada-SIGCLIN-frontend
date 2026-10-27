@@ -23,8 +23,8 @@ export class LoginComponent {
   errorMessage: string = '';
 
   constructor(
-    private authService: AuthService,
-    private router: Router,
+    private authService: AuthService, //encargado de peticiones http de autenticacion hacia el servidor
+    private router: Router, 
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -55,14 +55,14 @@ export class LoginComponent {
     }
 
     this.errorMessage = '';
-
+//mandamos datos al backend
     this.authService.login(this.credentials).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token);
         localStorage.setItem('username', response.username);
         localStorage.setItem('nombreCompleto', response.nombreCompleto);
 
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/dashboard']);//redirigimos al dashboard
       },
       
       error: (err: HttpErrorResponse) => {

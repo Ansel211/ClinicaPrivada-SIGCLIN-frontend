@@ -21,12 +21,13 @@ export class CitasComponent implements OnInit {
   // Lista para llenar el select del formulario
   medicosDisponibles = signal<any[]>([]);
 
-  // Modelo del formulario de la cita
+  // Modelo del formulario de la cita (Añadido duracionMinutos por defecto en 30)
   nuevaCita = {
     nombrePaciente: '',
     idMedico: '',
     fecha: '',
-    hora: ''
+    hora: '',
+    duracionMinutos: 30
   };
 
   ngOnInit(): void {
@@ -47,42 +48,44 @@ export class CitasComponent implements OnInit {
     this.nuevaCita.nombrePaciente = input.value;
   }
 
- registrarCita(event: Event): void {
-  event.preventDefault();
+  registrarCita(event: Event): void {
+    event.preventDefault();
 
-  const idNum = parseInt(this.nuevaCita.idMedico, 10);
+    const idNum = parseInt(this.nuevaCita.idMedico, 10);
 
-  if (!this.nuevaCita.nombrePaciente || isNaN(idNum) || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
-    this.toastService.show('Por favor selecciona un médico válido y completa todos los campos.', 'warning');
-    return;
-  }
+    if (!this.nuevaCita.nombrePaciente || isNaN(idNum) || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
+      this.toastService.show('Por favor selecciona un médico válido y completa todos los campos.', 'warning');
+      return;
+    }
 
-  const payload = {
-    nombrePaciente: this.nuevaCita.nombrePaciente.trim(),
-    medico: {
-      id: idNum
-    },
-    fecha: this.nuevaCita.fecha,
-    hora: this.nuevaCita.hora
-  };
+    const payload = {
+      nombrePaciente: this.nuevaCita.nombrePaciente.trim(),
+      medico: {
+        id: idNum
+      },
+      fecha: this.nuevaCita.fecha,
+      hora: this.nuevaCita.hora,
+      duracionMinutos: Number(this.nuevaCita.duracionMinutos) // Enviamos la duración elegida al backend
+    };
 
-  console.log('Payload corregido enviando a Java:', payload);
+    console.log('Payload enviando a Java con duración dinámica:', payload);
 
     this.citaService.registrarCita(payload).subscribe({
-     next: () => {
-      this.toastService.show('¡Cita registrada con éxito en la base de datos!', 'success');
-      this.nuevaCita = { nombrePaciente: '', idMedico: '', fecha: '', hora: '' };
-    },
-    error: (err) => {
-      console.error('Error al guardar la cita:', err);
-    
-    // Extrae el mensaje de texto del backend o usa una alternativa limpia
-      const mensaje = typeof err.error === 'string' 
-        ? err.error 
-        : (err.error?.message || 'Error al guardar la cita');
+      next: () => {
+        this.toastService.show('¡Cita registrada con éxito en la base de datos!', 'success');
+        // Reseteamos el formulario manteniendo los 30 min por defecto
+        this.nuevaCita = { nombrePaciente: '', idMedico: '', fecha: '', hora: '', duracionMinutos: 30 };
+      },
+      error: (err) => {
+        console.error('Error al guardar la cita:', err);
+      
+        // Extrae el mensaje de texto del backend o usa una alternativa limpia
+        const mensaje = typeof err.error === 'string' 
+          ? err.error 
+          : (err.error?.message || 'Error al guardar la cita');
 
-      this.toastService.show(mensaje, 'danger');
-    }
-  });
-}
+        this.toastService.show(mensaje, 'danger');
+      }
+    });
+  }
 }

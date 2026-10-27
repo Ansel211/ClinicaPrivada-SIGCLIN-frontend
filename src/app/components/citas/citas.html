@@ -23,15 +23,28 @@
     }
   </select>
 </div>
-  <!-- Fecha y Hora -->
+ 
+  <!-- Fecha, Hora y Duracion Libre en Minutos -->
   <div class="row">
-    <div class="col-md-6 mb-3">
+    <div class="col-md-4 mb-3">
       <label class="form-label">Fecha</label>
       <input type="date" class="form-control" [(ngModel)]="nuevaCita.fecha" name="fecha" [min]="fechaMinima" required>
     </div>
-    <div class="col-md-6 mb-3">
+    <div class="col-md-4 mb-3">
       <label class="form-label">Hora</label>
       <input type="time" class="form-control" [(ngModel)]="nuevaCita.hora" name="hora" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label class="form-label">Duración (minutos)</label>
+      <input 
+        type="number" 
+        class="form-control" 
+        [(ngModel)]="nuevaCita.duracionMinutos" 
+        name="duracionMinutos" 
+        min="5" 
+        step="5" 
+        placeholder="Ej. 20, 40..." 
+        required>
     </div>
   </div>
 
