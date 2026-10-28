@@ -11,40 +11,117 @@
       required>
   </div>
 
-  <!-- Desplegable para Asignar Médico -->
-   <div class="mb-3">
-  <label class="form-label">Asignar Médico</label>
-  <select class="form-select" [(ngModel)]="nuevaCita.idMedico" name="idMedico" required>
-    <option value="" disabled selected>Seleccione un médico</option>
-    @for (medico of medicosDisponibles(); track medico.id) {
-      <option [value]="medico.id || medico.idMedico">
-        Dr(a). {{ medico.nombre }} - {{ medico.especialidad }}
+  <!-- 1. Seleccionar Especialidad -->
+  <div class="mb-3">
+    <label class="form-label">Especialidad Médica</label>
+    <select class="form-select" [(ngModel)]="especialidadSeleccionada" name="especialidad" (change)="onEspecialidadChange()" required>
+      <option value="" disabled selected>Seleccione una especialidad</option>
+      @for (esp of listaEspecialidades; track esp) {
+        <option [value]="esp">{{ esp }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- 2. Tipo de Consulta (Filtrado según la especialidad elegida) -->
+  <div class="mb-3">
+    <label class="form-label">Tipo de Consulta / Procedimiento</label>
+    <select class="form-select" [(ngModel)]="tipoConsultaSeleccionado" name="tipoConsulta" (change)="onTipoConsultaChange()" [disabled]="!especialidadSeleccionada" required>
+      <option value="" disabled selected>
+        {{ especialidadSeleccionada ? 'Seleccione el tipo de consulta' : 'Primero seleccione una especialidad' }}
       </option>
-    }
-  </select>
-</div>
+      @for (tipo of listaTiposConsulta; track tipo) {
+        <option [value]="tipo">{{ tipo }} ({{ tiposConsultaDisponibles[tipo] }} min)</option>
+      }
+    </select>
+  </div>
+
  
-  <!-- Fecha, Hora y Duracion Libre en Minutos -->
+  <!-- 3. Asignar Médico (Filtrado por especialidad) -->
+  <div class="mb-3">
+    <label class="form-label">Asignar Médico</label>
+    <select class="form-select" [(ngModel)]="nuevaCita.idMedico" name="idMedico" [disabled]="!especialidadSeleccionada" required>
+      <option value="" disabled selected>
+        {{ especialidadSeleccionada ? 'Seleccione un médico disponible' : 'Primero seleccione una especialidad' }}
+      </option>
+      <!-- IMPORTANTE: Sin paréntesis en medicosFiltrados -->
+      @for (medico of medicosFiltrados; track medico.id) {
+        <option [value]="medico.id || medico.idMedico">
+          Dr(a). {{ medico.nombre }}
+        </option>
+      }
+    </select>
+  </div>
+  
+  <!-- Fecha, Hora y Duración Automática -->
   <div class="row">
+    <!-- Fecha -->
     <div class="col-md-4 mb-3">
       <label class="form-label">Fecha</label>
       <input type="date" class="form-control" [(ngModel)]="nuevaCita.fecha" name="fecha" [min]="fechaMinima" required>
     </div>
-    <div class="col-md-4 mb-3">
-      <label class="form-label">Hora</label>
-      <input type="time" class="form-control" [(ngModel)]="nuevaCita.hora" name="hora" required>
+    
+    <!-- Hora de Inicio (Con el popup flotante del lápiz ✏️) -->
+    <div class="col-md-4 mb-3 position-relative">
+      <label class="form-label">Hora de Inicio</label>
+      
+      <div class="form-control d-flex justify-content-between align-items-center bg-white cursor-pointer" 
+           (click)="mostrarSelectorHora = !mostrarSelectorHora">
+        <span class="fw-medium text-dark">
+          {{ (horaInput ? horaInput.toString().padStart(2, '0') : '13') }}:{{ (minutoInput ? minutoInput.toString().padStart(2, '0') : '30') }}
+        </span>
+        <span class="text-secondary" style="font-size: 0.9rem;">✏️</span>
+      </div>
+
+      <!-- Tarjeta flotante con flechitas -->
+      @if (mostrarSelectorHora) {
+        <div class="time-picker-card shadow p-3 bg-white border rounded position-absolute mt-1 w-100" style="z-index: 1050; left: 0;">
+          <div class="d-flex align-items-center justify-content-center gap-2">
+            
+            <!-- Horas -->
+            <div class="text-center" style="width: 70px;">
+              <button type="button" class="btn btn-sm btn-light w-100 mb-1 border py-0" (click)="incrementarHora()">▲</button>
+              <input 
+                type="number" 
+                class="form-control text-center p-1" 
+                [(ngModel)]="horaInput" 
+                name="horaInput" 
+                (ngModelChange)="actualizarHoraCompleta()"
+                min="0" max="23">
+              <button type="button" class="btn btn-sm btn-light w-100 mt-1 border py-0" (click)="decrementarHora()">▼</button>
+            </div>
+
+            <span class="fw-bold fs-4 text-secondary">:</span>
+
+            <!-- Minutos -->
+            <div class="text-center" style="width: 70px;">
+              <button type="button" class="btn btn-sm btn-light w-100 mb-1 border py-0" (click)="incrementarMinuto()">▲</button>
+              <input 
+                type="number" 
+                class="form-control text-center p-1" 
+                [(ngModel)]="minutoInput" 
+                name="minutoInput" 
+                (ngModelChange)="actualizarHoraCompleta()"
+                min="0" max="59" step="5">
+              <button type="button" class="btn btn-sm btn-light w-100 mt-1 border py-0" (click)="decrementarMinuto()">▼</button>
+            </div>
+
+          </div>
+
+          <div class="text-end mt-3">
+            <button type="button" class="btn btn-sm btn-primary w-100 py-1" (click)="mostrarSelectorHora = false">Aceptar</button>
+          </div>
+        </div>
+      }
     </div>
+
+    <!-- Duración Automática -->
     <div class="col-md-4 mb-3">
-      <label class="form-label">Duración (minutos)</label>
+      <label class="form-label">Duración (Automática)</label>
       <input 
-        type="number" 
-        class="form-control" 
-        [(ngModel)]="nuevaCita.duracionMinutos" 
-        name="duracionMinutos" 
-        min="5" 
-        step="5" 
-        placeholder="Ej. 20, 40..." 
-        required>
+        type="text" 
+        class="form-control bg-light text-muted" 
+        [value]="nuevaCita.duracionMinutos + ' minutos'" 
+        disabled>
     </div>
   </div>
 
