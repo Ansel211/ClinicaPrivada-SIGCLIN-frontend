@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CitaService } from '../../services/cita.service';
 import { MedicoService } from '../../services/medico.service';
 import { ToastService } from '../../services/toast.service';
+import { PacienteService } from '../../services/paciente.service'; // <-- 1. Faltaba importar esto
 
 @Component({
   selector: 'app-citas',
@@ -14,16 +15,18 @@ import { ToastService } from '../../services/toast.service';
 })
 export class CitasComponent implements OnInit {
   fechaMinima: string = new Date().toISOString().split('T')[0];
+  
   private citaService = inject(CitaService);
   private medicoService = inject(MedicoService);
   private toastService = inject(ToastService);
-
+  private pacienteService = inject(PacienteService);
+  
+  todosLosPacientes = signal<any[]>([]);
   todosLosMedicos = signal<any[]>([]);
 
   especialidadSeleccionada: string = '';
   tipoConsultaSeleccionado: string = '';
 
-  // Diccionario sincronizado exactamente con los textos de tu BD de Supabase
   consultasPorEspecialidad: { [especialidad: string]: { [tipo: string]: number } } = {
     'Cardiología': {
       'Primera Cita / Evaluación': 45,
@@ -62,12 +65,10 @@ export class CitasComponent implements OnInit {
     }
   };
 
-  // Obtener lista de especialidades
   get listaEspecialidades(): string[] {
     return Object.keys(this.consultasPorEspecialidad);
   }
 
-  // Obtiene los tipos de consulta específicos de la especialidad elegida
   get tiposConsultaDisponibles(): { [tipo: string]: number } {
     if (!this.especialidadSeleccionada) return {};
     return this.consultasPorEspecialidad[this.especialidadSeleccionada] || {};
@@ -77,7 +78,6 @@ export class CitasComponent implements OnInit {
     return Object.keys(this.tiposConsultaDisponibles);
   }
 
-  // Filtrar medicos como un getter tradicional para que reaccione al cambio de especialidad
   get medicosFiltrados() {
     const medicos = this.todosLosMedicos();
     if (!this.especialidadSeleccionada || !Array.isArray(medicos)) return [];
@@ -85,14 +85,9 @@ export class CitasComponent implements OnInit {
     const normalizar = (str: string) => 
       (str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
-    const filtrados = medicos.filter(
+    return medicos.filter(
       m => normalizar(m.especialidad) === normalizar(this.especialidadSeleccionada)
     );
-
-    console.log('Especialidad seleccionada:', this.especialidadSeleccionada);
-    console.log('Médicos filtrados:', filtrados);
-
-    return filtrados;
   }
 
   mostrarSelectorHora: boolean = false;
@@ -100,7 +95,7 @@ export class CitasComponent implements OnInit {
   minutoInput: string = '30';
 
   nuevaCita = {
-    nombrePaciente: '',
+    idPaciente: '', 
     idMedico: '',
     fecha: '',
     hora: '13:30',
@@ -109,18 +104,25 @@ export class CitasComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarMedicos();
+    this.cargarPacientes();
     this.actualizarHoraCompleta();
   }
 
   cargarMedicos(): void {
     this.medicoService.listarMedicos().subscribe({
       next: (data: any) => {
-        // Aseguramos que cargue como arreglo sin importar si viene envuelto
         const lista = Array.isArray(data) ? data : (data?.content || data?.data || []);
-        console.log('Médicos totales cargados desde BD:', lista);
         this.todosLosMedicos.set(lista);
       },
-      error: (err) => console.error('Error al cargar médicos:', err)
+      error: (err: any) => console.error('Error al cargar médicos:', err)
+    });
+  }
+
+  cargarPacientes(): void {
+    // 2. Tipado explícito (data: any[]) y (err: any) para evitar errores de compilación TS7006
+    this.pacienteService.listarPacientes().subscribe({
+      next: (data: any[]) => this.todosLosPacientes.set(data),
+      error: (err: any) => console.error('Error cargando pacientes:', err)
     });
   }
 
@@ -134,12 +136,6 @@ export class CitasComponent implements OnInit {
     if (this.especialidadSeleccionada && this.tipoConsultaSeleccionado) {
       this.nuevaCita.duracionMinutos = this.consultasPorEspecialidad[this.especialidadSeleccionada][this.tipoConsultaSeleccionado] || 30;
     }
-  }
-
-  validarFormatoNombre(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    input.value = input.value.replace(/[^a-zA-ZA-Za-zA-Za-zñÑ\s]/g, '');
-    this.nuevaCita.nombrePaciente = input.value;
   }
 
   actualizarHoraCompleta() {
@@ -183,17 +179,18 @@ export class CitasComponent implements OnInit {
   registrarCita(event: Event): void {
     event.preventDefault();
 
-    const idNum = parseInt(this.nuevaCita.idMedico, 10);
+    const idPacienteNum = parseInt(this.nuevaCita.idPaciente, 10);
+    const idMedicoNum = parseInt(this.nuevaCita.idMedico, 10);
     this.actualizarHoraCompleta();
 
-    if (!this.nuevaCita.nombrePaciente || !this.especialidadSeleccionada || !this.tipoConsultaSeleccionado || isNaN(idNum) || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
+    if (isNaN(idPacienteNum) || !this.especialidadSeleccionada || !this.tipoConsultaSeleccionado || isNaN(idMedicoNum) || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
       this.toastService.show('Por favor completa todos los campos del formulario.', 'warning');
       return;
     }
 
     const payload = {
-      nombrePaciente: this.nuevaCita.nombrePaciente.trim(),
-      medico: { id: idNum },
+      paciente: { idPaciente: idPacienteNum },
+      medico: { id: idMedicoNum },
       fecha: this.nuevaCita.fecha,
       hora: this.nuevaCita.hora,
       duracionMinutos: Number(this.nuevaCita.duracionMinutos),
@@ -210,13 +207,14 @@ export class CitasComponent implements OnInit {
         this.horaInput = '13';
         this.minutoInput = '30';
         this.actualizarHoraCompleta();
-        this.nuevaCita = { nombrePaciente: '', idMedico: '', fecha: '', hora: this.nuevaCita.hora, duracionMinutos: 30 };
+        this.nuevaCita = { idPaciente: '', idMedico: '', fecha: '', hora: this.nuevaCita.hora, duracionMinutos: 30 };
       },
-      error: (err) => {
+      error: (err: any) => { // 3. Tipado explícito para 'err' (soluciona TS2571 y TS7006)
         console.error('Error al guardar la cita:', err);
-        const mensaje = typeof err.error === 'string' 
-          ? err.error 
-          : (err.error?.message || 'Error al guardar la cita');
+        const errorObj = err.error as any; // Casteo seguro para TypeScript
+        const mensaje = typeof errorObj === 'string' 
+          ? errorObj 
+          : (errorObj?.message || 'Error al guardar la cita');
         this.toastService.show(mensaje, 'danger');
       }
     });

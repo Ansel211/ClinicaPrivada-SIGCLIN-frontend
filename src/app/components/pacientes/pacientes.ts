@@ -1,9 +1,55 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { PacienteService } from '../../services/paciente.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
-  imports: [],
   selector: 'app-pacientes',
-  styleUrl: './pacientes.css',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './pacientes.html',
+  styleUrl: './pacientes.css'
 })
-export class Pacientes {}
+export class PacientesComponent implements OnInit {
+  private pacienteService = inject(PacienteService);
+  private toastService = inject(ToastService);
+
+  listaPacientes = signal<any[]>([]);
+
+  nuevoPaciente = {
+    nombres: '',
+    apellidoPaterno: '',
+    apellidoMaterno: '',
+    numDocumento: '',
+    telefono: '',
+    direccion: '',
+    fechaNacimiento: ''
+  };
+
+  ngOnInit(): void {
+    this.cargarPacientes();
+  }
+
+  cargarPacientes() {
+    this.pacienteService.listarPacientes().subscribe({
+      next: (data) => this.listaPacientes.set(data),
+      error: (err) => console.error('Error al cargar pacientes', err)
+    });
+  }
+
+  guardarPaciente(event: Event) {
+    event.preventDefault();
+    this.pacienteService.registrarPaciente(this.nuevoPaciente).subscribe({
+      next: () => {
+        this.toastService.show('¡Paciente registrado con éxito!', 'success');
+        this.cargarPacientes();
+        this.nuevoPaciente = { nombres: '', apellidoPaterno: '', apellidoMaterno: '', numDocumento: '', telefono: '', direccion: '', fechaNacimiento: '' };
+      },
+      error: (err) => {
+        console.error('Error al registrar paciente', err);
+        this.toastService.show('Error al registrar el paciente', 'danger');
+      }
+    });
+  }
+}

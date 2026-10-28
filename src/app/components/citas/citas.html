@@ -1,17 +1,22 @@
 <form (submit)="registrarCita($event)">
-  <!-- Nombre del Paciente -->
+  
+  <!-- Seleccionar Paciente Registrado (Busqueda por DNI / Apellidos) -->
   <div class="mb-3">
-    <label class="form-label">Nombre del Paciente</label>
-    <input 
-      type="text" 
-      class="form-control" 
-      [(ngModel)]="nuevaCita.nombrePaciente" 
-      name="nombrePaciente" 
-      (input)="validarFormatoNombre($event)"
-      required>
+    <label class="form-label">Paciente (DNI - Nombres y Apellidos)</label>
+    <select class="form-select" [(ngModel)]="nuevaCita.idPaciente" name="idPaciente" required>
+      <option value="" disabled selected>Seleccione un paciente registrado...</option>
+      @for (p of todosLosPacientes(); track p.idPaciente) {
+        <option [value]="p.idPaciente">
+          [{{ p.numDocumento }}] - {{ p.nombres }} {{ p.apellidoPaterno }} {{ p.apellidoMaterno || '' }}
+        </option>
+      }
+    </select>
+    <div class="form-text text-muted">
+      Si el paciente es nuevo, regístralo primero en la sección de <a routerLink="/dashboard/pacientes" class="text-decoration-none">Pacientes</a>.
+    </div>
   </div>
 
-  <!-- 1. Seleccionar Especialidad -->
+  <!-- Seleccionar Especialidad -->
   <div class="mb-3">
     <label class="form-label">Especialidad Médica</label>
     <select class="form-select" [(ngModel)]="especialidadSeleccionada" name="especialidad" (change)="onEspecialidadChange()" required>
@@ -22,7 +27,7 @@
     </select>
   </div>
 
-  <!-- 2. Tipo de Consulta (Filtrado según la especialidad elegida) -->
+  <!-- Tipo de Consulta (Filtrado según la especialidad elegida) -->
   <div class="mb-3">
     <label class="form-label">Tipo de Consulta / Procedimiento</label>
     <select class="form-select" [(ngModel)]="tipoConsultaSeleccionado" name="tipoConsulta" (change)="onTipoConsultaChange()" [disabled]="!especialidadSeleccionada" required>
@@ -36,7 +41,7 @@
   </div>
 
  
-  <!-- 3. Asignar Médico (Filtrado por especialidad) -->
+  <!-- Asignar Médico (Filtrado por especialidad) -->
   <div class="mb-3">
     <label class="form-label">Asignar Médico</label>
     <select class="form-select" [(ngModel)]="nuevaCita.idMedico" name="idMedico" [disabled]="!especialidadSeleccionada" required>
@@ -60,7 +65,7 @@
       <input type="date" class="form-control" [(ngModel)]="nuevaCita.fecha" name="fecha" [min]="fechaMinima" required>
     </div>
     
-    <!-- Hora de Inicio (Con el popup flotante del lápiz ✏️) -->
+    <!-- Hora de Inicio  -->
     <div class="col-md-4 mb-3 position-relative">
       <label class="form-label">Hora de Inicio</label>
       

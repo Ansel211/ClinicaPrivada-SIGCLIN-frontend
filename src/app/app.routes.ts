@@ -4,9 +4,10 @@ import { LoginComponent } from './components/login/login';
 import { DashboardComponent } from './components/dashboard/dashboard';
 import { CitasComponent } from './components/citas/citas';
 import { MedicosComponent } from './components/medicos/medicos';
+import { PacientesComponent } from './components/pacientes/pacientes'; // <--- 1. Importar el componente
 
 export const routes: Routes = [
-  // Ruta por defecto: si entran a la raíz '/', los envía al Home público
+  
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   
   // Páginas públicas
@@ -20,6 +21,7 @@ export const routes: Routes = [
     children: [
       { path: 'citas', component: CitasComponent },
       { path: 'medicos', component: MedicosComponent },
+      { path: 'pacientes', component: PacientesComponent }, // <--- 2. Agregar la ruta hija aquí
       { path: '', redirectTo: 'citas', pathMatch: 'full' }
     ]
   },
