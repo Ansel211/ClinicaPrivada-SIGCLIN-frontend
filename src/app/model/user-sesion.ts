@@ -2,8 +2,9 @@ import { Rol } from './rol';
 import { Modulo } from './modulo';
 
 export interface UserSesion {
-  username: string;
-  nombreCompleto: string;
-  rol: Rol | string;
+  email: string;
+  personaId?: number;
+  names: string;
+  rol: string | Rol;
   modulos?: Modulo[];
 }

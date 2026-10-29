@@ -17,8 +17,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const excludedPaths = [
     '/auth/login',
     '/auth/refresh',
-    '/api/citas',
-    '/api/medicos'
   ];
 
   const shouldExclude = excludedPaths.some(path => req.url.includes(path));

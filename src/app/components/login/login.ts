@@ -16,7 +16,7 @@ export class LoginComponent {
   vistaActual = 'login';
 
   credentials = {
-    username: '',
+    email: '',
     password: ''
   };
 
@@ -48,8 +48,8 @@ export class LoginComponent {
       event.preventDefault();
     }
 
-    if (!this.credentials.username.trim() || !this.credentials.password.trim()) {
-      this.errorMessage = 'ingrese su usuario y contraseña.';
+    if (!this.credentials.email.trim() || !this.credentials.password.trim()) {
+      this.errorMessage = 'ingrese su correo y contraseña.';
       this.cdr.detectChanges();
       return;
     }
@@ -58,10 +58,7 @@ export class LoginComponent {
 //mandamos datos al backend
     this.authService.login(this.credentials).subscribe({
       next: (response) => {
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('username', response.username);
-        localStorage.setItem('nombreCompleto', response.nombreCompleto);
-
+        localStorage.setItem('user_token', response.token);
         this.router.navigate(['/dashboard']);//redirigimos al dashboard
       },
       

@@ -3,6 +3,7 @@ import { Modulo } from '../../modulo';
 
 export interface UserResponse {
   token: string;
+  email?: string;
   username: string;
   nombreCompleto: string;
   role?: Rol | string;     // <-- Rol asignado al usuario

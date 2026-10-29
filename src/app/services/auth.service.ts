@@ -29,8 +29,8 @@ export class AuthService {
             this.storageService.setItem('user_role', roleName);
           }
 
-          if (response.username) {
-            this.storageService.setItem('user_name', response.username);
+          if (response.email) {
+            this.storageService.setItem('user_email', response.email);
           }
 
           this._isLoggedIn.set(true);
@@ -50,7 +50,7 @@ export class AuthService {
   logout(): void {
     this.storageService.removeItem('user_token');
     this.storageService.removeItem('user_role');
-    this.storageService.removeItem('user_name');
+    this.storageService.removeItem('user_email');
     this._isLoggedIn.set(false);
   }
 }
