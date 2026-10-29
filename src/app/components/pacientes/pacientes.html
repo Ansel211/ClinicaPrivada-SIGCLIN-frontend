@@ -4,34 +4,52 @@
   </div>
   
   <!-- Formulario de Registro -->
-  <form (submit)="guardarPaciente($event)" class="row g-3 p-4 border rounded bg-light mb-4 shadow-sm">
+  <form #pacienteForm="ngForm" (submit)="guardarPaciente(pacienteForm)" class="row g-3 p-4 border rounded bg-light mb-4 shadow-sm">
     <div class="col-md-4">
       <label class="form-label">Nombres</label>
-      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.nombres" name="nombres" required>
+      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.nombres" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" maxlength="30" name="nombres" required #nombresInput="ngModel">
+      <div *ngIf="nombresInput.invalid && nombresInput.touched" class="text-danger small mt-1">
+        Solo se permiten letras y espacios simples.
+      </div>
     </div>
     <div class="col-md-4">
       <label class="form-label">Apellido Paterno</label>
-      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.apellidoPaterno" name="apellidoPaterno" required>
+      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.apellidoPaterno" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" maxlength="30" name="apellidoPaterno" required #apellidoPaternoInput="ngModel">
+      <div *ngIf="apellidoPaternoInput.invalid && apellidoPaternoInput.touched" class="text-danger small mt-1">
+        Solo se permiten letras y espacios simples.
+      </div>
     </div>
     <div class="col-md-4">
       <label class="form-label">Apellido Materno</label>
-      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.apellidoMaterno" name="apellidoMaterno">
+      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.apellidoMaterno" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" maxlength="30" name="apellidoMaterno" required #apellidoMaternoInput="ngModel">
+      <div *ngIf="apellidoMaternoInput.invalid && apellidoMaternoInput.touched" class="text-danger small mt-1">
+        Solo se permiten letras y espacios simples.
+      </div>
     </div>
     <div class="col-md-3">
       <label class="form-label">Nro. Documento (DNI)</label>
-      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.numDocumento" name="numDocumento" required>
+      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.numDocumento" pattern="^[0-9]{8}$" maxlength="8" minlength="8" name="numDocumento" required #dniInput="ngModel">
+      <div *ngIf="dniInput.invalid && dniInput.touched" class="text-danger small mt-1">
+        El DNI debe tener 8 dígitos numéricos.
+      </div>
     </div>
     <div class="col-md-3">
       <label class="form-label">Teléfono</label>
-      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.telefono" name="telefono">
+      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.telefono" pattern="^9[0-9]{8}$" maxlength="9" minlength="9" name="telefono" #telInput="ngModel">
+      <div *ngIf="telInput.invalid && telInput.touched" class="text-danger small mt-1">
+        Debe ser un celular de 9 dígitos que comience con 9.
+      </div>
     </div>
     <div class="col-md-3">
       <label class="form-label">Fecha de Nacimiento</label>
-      <input type="date" class="form-control" [(ngModel)]="nuevoPaciente.fechaNacimiento" name="fechaNacimiento">
+      <input type="date" class="form-control" [(ngModel)]="nuevoPaciente.fechaNacimiento" [max]="fechaMaxima" name="fechaNacimiento" required #fechaInput="ngModel">
+      <div *ngIf="(fechaInput.invalid || nuevoPaciente.fechaNacimiento > fechaMaxima) && fechaInput.touched" class="text-danger small mt-1">
+        La fecha no puede ser futura ni estar vacía.
+      </div>
     </div>
     <div class="col-md-3">
       <label class="form-label">Dirección</label>
-      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.direccion" name="direccion">
+      <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.direccion" pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.\,\#\-]{5,100}$" maxlength="100" name="direccion">
     </div>
     <div class="col-12">
       <button type="submit" class="btn btn-primary">Guardar Paciente</button>

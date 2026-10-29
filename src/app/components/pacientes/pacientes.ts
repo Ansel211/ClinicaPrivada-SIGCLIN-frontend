@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { PacienteService } from '../../services/paciente.service';
 import { ToastService } from '../../services/toast.service';
 
@@ -16,6 +16,8 @@ export class PacientesComponent implements OnInit {
   private toastService = inject(ToastService);
 
   listaPacientes = signal<any[]>([]);
+
+  fechaMaxima: string = new Date().toISOString().split('T')[0];
 
   nuevoPaciente = {
     nombres: '',
@@ -38,8 +40,17 @@ export class PacientesComponent implements OnInit {
     });
   }
 
-  guardarPaciente(event: Event) {
-    event.preventDefault();
+  guardarPaciente(form: NgForm) {
+
+    if (form.invalid) {
+    this.toastService.show('Por favor corrija los campos marcados en rojo', 'warning');
+    return;
+    }
+
+    if (this.nuevoPaciente.fechaNacimiento > this.fechaMaxima) {
+       this.toastService.show('La fecha de nacimiento no puede ser mayor a la fecha actual', 'danger');
+       return; 
+    }
     this.pacienteService.registrarPaciente(this.nuevoPaciente).subscribe({
       next: () => {
         this.toastService.show('¡Paciente registrado con éxito!', 'success');
