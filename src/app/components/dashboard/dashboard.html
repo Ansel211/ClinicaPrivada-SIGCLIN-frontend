@@ -3,23 +3,17 @@
   <div class="bg-dark text-white p-3 min-vh-100" style="width: 250px;">
     <h4 class="text-center py-3">SIGCLIN</h4>
     <hr>
+
     <ul class="nav nav-pills flex-column mb-auto">
-      <li class="nav-item">
-        <a routerLink="/dashboard/citas" routerLinkActive="active" class="nav-link text-white">
-          <i class="bi bi-calendar-event me-2"></i> Citas
-        </a>
-      </li>
-      <li class="nav-item">
-        <a routerLink="/dashboard/medicos" routerLinkActive="active" class="nav-link text-white">
-          <i class="bi bi-person-badge me-2"></i> Médicos
-        </a>
-      </li>
-      <li class="nav-item">
-        <a routerLink="/dashboard/pacientes" routerLinkActive="active" class="nav-link text-white">
-          <i class="bi bi-person-heart me-2"></i> Pacientes
-        </a>
-      </li>
+      @for (mod of modulos(); track mod.idMod) {
+        <li class="nav-item">
+          <a [routerLink]="mod.url" routerLinkActive="active" class="nav-link text-white">
+            <i class="bi bi-folder me-2"></i> {{ mod.descripcion }}
+          </a>
+        </li>
+      }
     </ul>
+
     <hr>
     <button (click)="cerrarSesion()" class="btn btn-outline-danger w-100">
       <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
@@ -28,8 +22,6 @@
 
   <!-- Contenido Principal Dinámico -->
   <div class="flex-grow-1 p-4 bg-light">
-    
-    
     <router-outlet></router-outlet>
   </div>
 </div>

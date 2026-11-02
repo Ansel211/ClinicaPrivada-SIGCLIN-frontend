@@ -5,6 +5,7 @@ import { environment } from '../environments/environment';
 import { UserRequest } from '../model/api/request/user-request';
 import { UserResponse } from '../model/api/response/user-response';
 import { StorageService } from './storage.service';
+import { Modulo } from '../model/modulo';
 
 @Injectable({
   providedIn: 'root'
@@ -24,9 +25,11 @@ export class AuthService {
           // Guardamos el token REAL que responde el backend
           this.storageService.setItem('user_token', response.token);
           
-          if (response.role) {
-            const roleName = typeof response.role === 'string' ? response.role : response.role.nombre;
-            this.storageService.setItem('user_role', roleName);
+          if(response.rolCodigo) {
+            this.storageService.setItem('user_role', response.rolCodigo);
+          }
+          if (response.modulos) {
+            this.storageService.setItem('user_modules', JSON.stringify(response.modulos));
           }
 
           if (response.email) {
@@ -46,10 +49,15 @@ export class AuthService {
   getUserRole(): string | null {
     return this.storageService.getItem('user_role');
   }
-
+  
+  getUserModules(): Modulo[] {
+    const modulesJson = this.storageService.getItem('user_modules');
+    return modulesJson ? JSON.parse(modulesJson) : [];
+  }
   logout(): void {
     this.storageService.removeItem('user_token');
     this.storageService.removeItem('user_role');
+    this.storageService.removeItem('user_modules');
     this.storageService.removeItem('user_email');
     this._isLoggedIn.set(false);
   }
