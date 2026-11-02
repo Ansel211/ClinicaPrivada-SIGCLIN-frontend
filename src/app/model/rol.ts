@@ -1,5 +1,9 @@
+import { Modulo } from './modulo';
+
 export interface Rol {
-  id?: number;
-  nombre: string;
-  estado?: boolean;
+  idRol?: number;
+  codigo: string;
+  descripcion: string;
+  activo: boolean;
+  modulos?: Modulo[];
 }
