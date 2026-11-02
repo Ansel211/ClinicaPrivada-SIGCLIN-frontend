@@ -1,8 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { PacienteService } from '../../services/paciente.service';
-import { ToastService } from '../../services/toast.service';
+import { PacienteService } from '../../../services/paciente.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-pacientes',

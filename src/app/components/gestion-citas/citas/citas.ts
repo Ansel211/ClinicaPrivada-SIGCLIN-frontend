@@ -1,10 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CitaService } from '../../services/cita.service';
-import { MedicoService } from '../../services/medico.service';
-import { ToastService } from '../../services/toast.service';
-import { PacienteService } from '../../services/paciente.service'; // <-- 1. Faltaba importar esto
+import { CitaService } from '../../../services/cita.service';
+import { MedicoService } from '../../../services/medico.service';
+import { ToastService } from '../../../services/toast.service';
+import { PacienteService } from '../../../services/paciente.service'; // <-- 1. Faltaba importar esto
 
 @Component({
   selector: 'app-citas',

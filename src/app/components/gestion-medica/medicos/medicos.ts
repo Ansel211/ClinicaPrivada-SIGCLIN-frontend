@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MedicoService } from '../../services/medico.service';
-import { ToastService } from '../../services/toast.service';
+import { MedicoService } from '../../../services/medico.service';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-medicos',
