@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RegistrarRol } from './registrar-rol';
+import { RegistrarRolComponent } from './registrar-rol';
 
-describe('RegistrarRol', () => {
-  let component: RegistrarRol;
-  let fixture: ComponentFixture<RegistrarRol>;
+describe('RegistrarRolComponent', () => {
+  let component: RegistrarRolComponent;
+  let fixture: ComponentFixture<RegistrarRolComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RegistrarRol],
+      imports: [RegistrarRolComponent]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(RegistrarRol);
+    fixture = TestBed.createComponent(RegistrarRolComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
