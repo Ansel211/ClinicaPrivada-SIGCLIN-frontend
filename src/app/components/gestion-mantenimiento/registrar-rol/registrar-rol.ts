@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RolService } from '../../../services/rol.service';
 import { ToastService } from '../../../services/toast.service';
 import { Rol } from '../../../model/rol';
+import { Modulo, ModuloService } from '../../../services/modulo.service';
 
 @Component({
   selector: 'app-registrar-rol',
@@ -16,7 +17,11 @@ export class RegistrarRolComponent implements OnInit {
   private fb = inject(FormBuilder);
   private rolService = inject(RolService);
   private toastService = inject(ToastService);
+  private moduloService = inject(ModuloService);
+
   roles = signal<Rol[]>([]);
+  modulosDisponibles = signal<Modulo[]>([]); 
+  modulosSeleccionados: Modulo[] = [];
   
   rolForm: FormGroup = this.fb.group({
     codigo: ['', [Validators.required, Validators.minLength(2)]],
@@ -25,6 +30,14 @@ export class RegistrarRolComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarRoles();
+    this.cargarModulos();
+  }
+
+  cargarModulos(): void {
+    this.moduloService.listarModulos().subscribe({
+      next: (data) => this.modulosDisponibles.set(data.filter(m => m.activo)),
+      error: (err) => console.error('Error al cargar módulos:', err)
+    });
   }
 
   cargarRoles(): void {
@@ -37,6 +50,16 @@ export class RegistrarRolComponent implements OnInit {
     });
   }
 
+
+  onModuloCheck(modulo: Modulo, event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    if (isChecked) {
+      this.modulosSeleccionados.push(modulo);
+    } else {
+      this.modulosSeleccionados = this.modulosSeleccionados.filter(m => m.idMod !== modulo.idMod);
+    }
+  }
+
   guardarRol(): void {
     if (this.rolForm.invalid) {
       this.rolForm.markAllAsTouched();
@@ -45,13 +68,15 @@ export class RegistrarRolComponent implements OnInit {
 
     const nuevoRol: Rol = {
       ...this.rolForm.value,
-      activo: true
+      activo: true,
+      modulos: this.modulosSeleccionados // Se adjunta el arreglo de módulos seleccionados
     };
 
     this.rolService.crearRol(nuevoRol).subscribe({
       next: () => {
         this.toastService.showSuccess('¡Rol registrado con éxito!');
         this.rolForm.reset();
+        this.modulosSeleccionados = [];
         this.cargarRoles();
       },
       error: (err) => {

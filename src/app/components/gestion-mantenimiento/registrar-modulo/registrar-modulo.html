@@ -1,1 +1,83 @@
-<p>registrar-modulo works!</p>
+<div class="container mt-4">
+  <h2>Gestión de Módulos</h2>
+
+  <!-- Alertas -->
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ mensajeExito }}
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ mensajeError }}
+  </div>
+
+  <!-- Formulario -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5>Registrar Nuevo Módulo</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="guardarModulo()">
+        <div class="row">
+          <div class="col-md-5 mb-3">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <input 
+              type="text" 
+              id="descripcion" 
+              class="form-control" 
+              [(ngModel)]="nuevoModulo.descripcion" 
+              name="descripcion" 
+              placeholder="Ej. Gestión de Doctores" 
+              required>
+          </div>
+          <div class="col-md-5 mb-3">
+            <label for="url" class="form-label">URL del Módulo</label>
+            <input 
+              type="text" 
+              id="url" 
+              class="form-control" 
+              [(ngModel)]="nuevoModulo.url" 
+              name="url" 
+              placeholder="Ej. /dashboard/doctores" 
+              required>
+          </div>
+          <div class="col-md-2 mb-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-success w-100">Guardar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabla de Listado -->
+  <div class="card">
+    <div class="card-header">
+      <h5>Módulos Registrados</h5>
+    </div>
+    <div class="card-body">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Descripción</th>
+            <th>URL</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let mod of modulos">
+            <td>{{ mod.idMod }}</td>
+            <td>{{ mod.descripcion }}</td>
+            <td>{{ mod.url }}</td>
+            <td>
+              <span class="badge" [ngClass]="mod.activo ? 'bg-success' : 'bg-secondary'">
+                {{ mod.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="modulos.length === 0">
+            <td colspan="4" class="text-center text-muted">No hay módulos registrados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
