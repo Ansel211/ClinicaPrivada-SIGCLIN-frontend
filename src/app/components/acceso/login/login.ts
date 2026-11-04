@@ -55,19 +55,17 @@ export class LoginComponent {
     }
 
     this.errorMessage = '';
-//mandamos datos al backend
-    this.authService.login(this.credentials).subscribe({
-      next: (response) => {
-        localStorage.setItem('user_token', response.token);
-        this.router.navigate(['/dashboard']);//redirigimos al dashboard
-      },
-      
-      error: (err: HttpErrorResponse) => {
-  this.errorMessage = err.status === 0
-    ? 'No se pudo conectar con el servidor.'
-    : (err.error?.message || 'Ocurrió un error inesperado.');
-  this.cdr.detectChanges();
-}
-    });
+
+  this.authService.login(this.credentials).subscribe({
+    next: () => {
+      this.router.navigate(['/dashboard']);
+    },
+    error: (err: HttpErrorResponse) => {
+      this.errorMessage = err.status === 0
+        ? 'No se pudo conectar con el servidor.'
+        : (err.error?.message || 'Ocurrió un error inesperado.');
+      this.cdr.detectChanges();
+    }
+  });
   }
 }

@@ -1,4 +1,8 @@
 import { Routes } from '@angular/router';
+
+import { authGuard } from './guards/auth.guard';
+import { moduloGuard } from './guards/modulo.guard';
+
 import { HomeComponent } from './components/home/home';
 import { LoginComponent } from './components/acceso/login/login';
 import { DashboardComponent } from './components/dashboard/dashboard';
@@ -20,13 +24,38 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [authGuard], // Bloquea todo /dashboard si no hay sesión activa
     children: [
-      { path: 'citas', component: CitasComponent },
-      { path: 'medicos', component: MedicosComponent },
-      { path: 'pacientes', component: PacientesComponent }, 
-      { path: 'registrar-rol', component: RegistrarRolComponent },
-      { path: 'registrar-modulo', component: RegistrarModuloComponent },
-      { path: 'registrar-usuario', component: RegistrarUsuarioComponent },
+      { 
+        path: 'citas', 
+        component: CitasComponent,
+        canActivate: [moduloGuard] // Valida acceso según el rol del usuario
+      },
+      { 
+        path: 'medicos', 
+        component: MedicosComponent,
+        canActivate: [moduloGuard] 
+      },
+      { 
+        path: 'pacientes', 
+        component: PacientesComponent,
+        canActivate: [moduloGuard] 
+      },
+      { 
+        path: 'registrar-rol', 
+        component: RegistrarRolComponent,
+        canActivate: [moduloGuard] 
+      },
+      { 
+        path: 'registrar-modulo', 
+        component: RegistrarModuloComponent,
+        canActivate: [moduloGuard] 
+      },
+      { 
+        path: 'registrar-usuario', 
+        component: RegistrarUsuarioComponent,
+        canActivate: [moduloGuard] 
+      },
       { path: '', redirectTo: 'citas', pathMatch: 'full' }
     ]
   },

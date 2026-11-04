@@ -15,19 +15,32 @@ export class SessionService {
     return null;
   }
 
-  getInfoSession(): UserSesion | null{
-    const decodedToken=this.getDecodedToken();
-    if(!decodedToken){
+  getInfoSession(): UserSesion | null {
+    const decodedToken = this.getDecodedToken();
+    if (!decodedToken) {
       return null;
     }
-    return {
-      email:decodedToken.email,
-      personaId:decodedToken.personaId,
-      names:decodedToken.names,
-      rol:decodedToken.role,
-      modulos:decodedToken.modules
+
+    // Intentar obtener módulos del token o caer en el LocalStorage
+    let modulos = decodedToken.modules;
+    if (!modulos) {
+      const localModules = localStorage.getItem('user_modules');
+      if (localModules) {
+        try {
+          modulos = JSON.parse(localModules);
+        } catch (e) {
+          modulos = [];
+        }
+      }
     }
 
+    return {
+      email: decodedToken.email,
+      personaId: decodedToken.personaId,
+      names: decodedToken.names,
+      rol: decodedToken.role,
+      modulos: modulos || []
+    };
   }
 
 
