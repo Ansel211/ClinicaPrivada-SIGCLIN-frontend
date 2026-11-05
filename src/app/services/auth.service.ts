@@ -1,11 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
 import { environment } from '../environments/environment';
 import { UserRequest } from '../model/api/request/user-request';
 import { UserResponse } from '../model/api/response/user-response';
+import { Observable, tap } from 'rxjs';
 import { StorageService } from './storage.service';
-import { Modulo } from '../model/modulo';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +13,6 @@ export class AuthService {
   private http = inject(HttpClient);
   private storageService = inject(StorageService);
 
-  // Estado reactivo de la sesión
   private _isLoggedIn = signal<boolean>(this.hasToken());
   isLoggedIn = this._isLoggedIn.asReadonly();
 
@@ -22,43 +20,26 @@ export class AuthService {
     return this.http.post<UserResponse>(`${environment.url}/auth/login`, user).pipe(
       tap((response: UserResponse) => {
         if (response && response.token) {
-          // Guardamos el token REAL que responde el backend
+          // Limpiar token anterior y asignar el nuevo
+          this.storageService.removeItem('user_token');
           this.storageService.setItem('user_token', response.token);
-          
-          if(response.rolCodigo) {
-            this.storageService.setItem('user_role', response.rolCodigo);
-          }
-          if (response.modulos) {
-            this.storageService.setItem('user_modules', JSON.stringify(response.modulos));
-          }
-
-          if (response.email) {
-            this.storageService.setItem('user_email', response.email);
-          }
-
           this._isLoggedIn.set(true);
         }
       })
     );
   }
 
-  private hasToken(): boolean {
-    return !!this.storageService.getItem('user_token');
+  public setToken(token: string) {
+    this.storageService.setItem('user_token', token);
+    this._isLoggedIn.set(true);
   }
 
-  getUserRole(): string | null {
-    return this.storageService.getItem('user_role');
+  private hasToken(): boolean {
+    return !!this.storageService.getItem("user_token");
   }
-  
-  getUserModules(): Modulo[] {
-    const modulesJson = this.storageService.getItem('user_modules');
-    return modulesJson ? JSON.parse(modulesJson) : [];
-  }
+
   logout(): void {
     this.storageService.removeItem('user_token');
-    this.storageService.removeItem('user_role');
-    this.storageService.removeItem('user_modules');
-    this.storageService.removeItem('user_email');
     this._isLoggedIn.set(false);
   }
 }
