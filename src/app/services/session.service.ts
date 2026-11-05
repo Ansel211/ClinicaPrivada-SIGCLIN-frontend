@@ -10,7 +10,13 @@ export class SessionService {
     const token = localStorage.getItem('user_token');
 
     if (token) {
-      const decodedTokenString = atob(token.split('.')[1]);
+    const base64Payload = token.split('.')[1];
+     const decodedTokenString = decodeURIComponent(
+     atob(base64Payload)
+    .split('')
+    .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+    .join('')
+    );
       return JSON.parse(decodedTokenString);
     }
     return null;
