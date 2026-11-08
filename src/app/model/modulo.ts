@@ -1,7 +1,7 @@
 export interface Modulo {
-  idMod: number;
+  idMod?: number;
   descripcion: string;
   url: string;
   activo?: boolean;
-  ordenOpcion: number;
+  ordenOpcion?: number;
 }

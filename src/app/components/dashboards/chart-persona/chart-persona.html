@@ -1,35 +1,24 @@
 <div class="container-fluid py-4">
   <div class="row">
-    <!--  Dona -->
+    <!-- Gráfico 1: Usuarios por Rol (Donut) -->
     <div class="col-md-6 d-flex justify-content-center">
-      @if (chartOptionsDonut && chartOptionsDonut.series) {
-        <div class="chart-wrapper w-100">
-          <apx-chart
-            [title]="chartOptionsDonut.title!"
-            [series]="chartOptionsDonut.series!"
-            [chart]="chartOptionsDonut.chart!"
-            [labels]="chartOptionsDonut.labels!"
-            [colors]="chartOptionsDonut.colors!"
-            [legend]="chartOptionsDonut.legend!">
-          </apx-chart>
-        </div>
-      }
+      <div class="chart-wrapper w-100 p-3 bg-white rounded shadow-sm">
+        <apx-chart
+          [title]="chartOptionsDonut.title!"
+          [series]="chartOptionsDonut.series!"
+          [chart]="chartOptionsDonut.chart!"
+          [labels]="chartOptionsDonut.labels!"
+          [colors]="chartOptionsDonut.colors!"
+          [legend]="chartOptionsDonut.legend!">
+        </apx-chart>
+      </div>
     </div>
 
-    <!--  Barras Horizontales -->
+    <!-- Gráfico 2: Citas por Médico (Columnas Verticales) -->
     <div class="col-md-6 d-flex justify-content-center">
-      @if (chartOptionsBar && chartOptionsBar.series) {
-        <div class="chart-wrapper w-100">
-          <apx-chart
-            [title]="chartOptionsBar.title!"
-            [series]="chartOptionsBar.series!"
-            [chart]="chartOptionsBar.chart!"
-            [xaxis]="chartOptionsBar.xaxis!"
-            [colors]="chartOptionsBar.colors!"
-            [plotOptions]="chartOptionsBar.plotOptions!">
-          </apx-chart>
-        </div>
-      }
+      <div class="chart-wrapper w-100 p-3 bg-white rounded shadow-sm">
+        <app-chart-cita></app-chart-cita>
+      </div>
     </div>
   </div>
 </div>

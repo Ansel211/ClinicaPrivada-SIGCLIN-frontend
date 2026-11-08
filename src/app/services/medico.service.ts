@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface Medico {
   id: number;
@@ -13,13 +14,9 @@ export interface Medico {
   providedIn: 'root'
 })
 export class MedicoService {
-  private apiUrl = 'http://localhost:8080/api/medicos';
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
-
-  listarMedicos(): Observable<Medico[]> { //Realiza una petición GET a la API de médicos. Lee el token almacenado manualmente desde localStorage y construye el encabezado
-    const token = localStorage.getItem('token'); 
-    const header = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get<Medico[]>(this.apiUrl, { headers: header });
+  listarMedicos(): Observable<Medico[]> {
+    return this.http.get<Medico[]>(`${environment.url}/medicos`);
   }
 }
