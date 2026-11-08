@@ -3,4 +3,5 @@ export interface Modulo {
   descripcion: string;
   url: string;
   activo?: boolean;
+  ordenOpcion: number;
 }

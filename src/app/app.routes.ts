@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { moduloGuard } from './guards/modulo.guard';
 
+import { ChartPersona } from './components/dashboards/chart-persona/chart-persona';
 import { HomeComponent } from './components/home/home';
 import { LoginComponent } from './components/acceso/login/login';
 import { PrincipalComponent } from './components/principal/principal'; 
@@ -26,6 +27,12 @@ export const routes: Routes = [
     component: PrincipalComponent,
     canActivate: [authGuard], // Bloquea todo /Principal si no hay sesión activa
     children: [
+
+      {
+      path: 'Inicio',
+      component: ChartPersona,
+      canActivate: [moduloGuard]
+      },
       { 
         path: 'citas', 
         component: CitasComponent,
@@ -56,7 +63,7 @@ export const routes: Routes = [
         component: RegistrarUsuarioComponent,
         canActivate: [moduloGuard] 
       },
-      { path: '', redirectTo: 'citas', pathMatch: 'full' }
+      { path: '', redirectTo: 'Inicio', pathMatch: 'full' }
     ]
   },
 

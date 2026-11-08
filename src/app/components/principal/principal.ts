@@ -22,6 +22,13 @@ export class PrincipalComponent implements OnInit {
   ngOnInit(): void {
     const session = this.sessionService.getInfoSession();
     this.modulos.set(session?.modulos || []);
+    
+    if (session && session.modulos && this.router.url === '/principal') {
+      const firstModule = session.modulos.find(m => m.ordenOpcion === 1);
+        if (firstModule) {
+        this.router.navigate(['/principal', firstModule.url]);
+        }
+      }
   }
 
   cerrarSesion(): void {
