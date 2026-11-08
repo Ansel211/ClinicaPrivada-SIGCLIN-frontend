@@ -5,7 +5,7 @@ import { moduloGuard } from './guards/modulo.guard';
 
 import { HomeComponent } from './components/home/home';
 import { LoginComponent } from './components/acceso/login/login';
-import { DashboardComponent } from './components/dashboard/dashboard';
+import { PrincipalComponent } from './components/principal/principal'; 
 import { CitasComponent } from './components/gestion-citas/citas/citas';
 import { MedicosComponent } from './components/gestion-medica/medicos/medicos';
 import { PacientesComponent } from './components/gestion-pacientes/pacientes/pacientes'; 
@@ -20,11 +20,11 @@ export const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
 
-  // Área privada de gestión (Dashboard con navegación interna)
+  // Área privada de gestión (Principal con navegación interna)
   {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [authGuard], // Bloquea todo /dashboard si no hay sesión activa
+    path: 'principal',
+    component: PrincipalComponent,
+    canActivate: [authGuard], // Bloquea todo /Principal si no hay sesión activa
     children: [
       { 
         path: 'citas', 

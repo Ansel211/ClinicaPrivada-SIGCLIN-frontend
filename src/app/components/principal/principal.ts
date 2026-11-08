@@ -5,13 +5,13 @@ import { Modulo } from '../../model/modulo';
 import { SessionService } from '../../services/session.service';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-principal',
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
-  templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css'
+  templateUrl: './principal.html',
+  styleUrl: './principal.css'
 })
-export class DashboardComponent implements OnInit {
+export class PrincipalComponent implements OnInit {
   private authService = inject(AuthService);
   private sessionService = inject(SessionService);
   private router = inject(Router);
