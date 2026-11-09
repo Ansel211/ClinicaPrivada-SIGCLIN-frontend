@@ -8,13 +8,14 @@ import { HomeComponent } from './components/home/home';
 import { LoginComponent } from './components/acceso/login/login';
 import { PrincipalComponent } from './components/principal/principal'; 
 import { CitasComponent } from './components/gestion-citas/citas/citas';
+import { CalendarioCitasComponent } from './components/gestion-citas/calendario-citas/calendario-citas'; // <-- ¡Importación agregada!
 import { MedicosComponent } from './components/gestion-medica/medicos/medicos';
 import { PacientesComponent } from './components/gestion-pacientes/pacientes/pacientes'; 
 import { RegistrarRolComponent } from './components/gestion-mantenimiento/registrar-rol/registrar-rol';
 import { RegistrarModuloComponent } from './components/gestion-mantenimiento/registrar-modulo/registrar-modulo';
 import { RegistrarUsuarioComponent } from './components/gestion-mantenimiento/registrar-usuario/registrar-usuario';
+
 export const routes: Routes = [
-  
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   
   // Páginas públicas
@@ -25,19 +26,23 @@ export const routes: Routes = [
   {
     path: 'principal',
     component: PrincipalComponent,
-    canActivate: [authGuard], // Bloquea todo /Principal si no hay sesión activa
+    canActivate: [authGuard],
     children: [
-
       {
-      path: 'Inicio',
-      component: ChartPersona,
-      canActivate: [moduloGuard]
+        path: 'Inicio',
+        component: ChartPersona,
+        canActivate: [moduloGuard]
       },
       { 
         path: 'citas', 
         component: CitasComponent,
-        canActivate: [moduloGuard] // Valida acceso según el rol del usuario
+        canActivate: [moduloGuard] 
       },
+      { 
+        path: 'calendario', // <-- Sin repetir 'principal/'
+        component: CalendarioCitasComponent,
+        canActivate: [moduloGuard] // <-- Usando el guard de módulos normalmente
+      }, // <-- ¡Coma agregada aquí que faltaba!
       { 
         path: 'medicos', 
         component: MedicosComponent,
