@@ -1,0 +1,76 @@
+<div class="container mt-4">
+  <div class="card shadow-sm border-0 p-4">
+    <h2 class="mb-4 text-primary fw-bold">Agenda & Calendario Médico</h2>
+
+    <!-- Barra de Filtros -->
+    <div class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
+      
+      <!-- Selector de Médico (Visible solo para Recepción / Admin) -->
+      <div class="col-md-4" *ngIf="esRolRecepcionAdmin">
+        <label class="form-label fw-semibold">Filtrar por Médico:</label>
+        <select class="form-select" [(ngModel)]="idMedicoFiltro" (change)="aplicarFiltros()">
+          <option value="">-- Todos los Médicos (Consolidado) --</option>
+          <option *ngFor="let med of medicos()" [value]="med.id">
+            Dr. {{ med.nombre }} ({{ med.especialidad }})
+          </option>
+        </select>
+      </div>
+
+      <!-- Filtro Fecha Inicio -->
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Desde:</label>
+        <input type="date" class="form-control" [(ngModel)]="fechaInicioFiltro" (change)="aplicarFiltros()">
+      </div>
+
+      <!-- Filtro Fecha Fin -->
+      <div class="col-md-3">
+        <label class="form-label fw-semibold">Hasta:</label>
+        <input type="date" class="form-control" [(ngModel)]="fechaFinFiltro" (change)="aplicarFiltros()">
+      </div>
+
+      <!-- Botón Limpiar -->
+      <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-outline-secondary w-100" (click)="limpiarFiltros()">Limpiar</button>
+      </div>
+    </div>
+
+    <!-- Tabla / Listado de Citas de la Agenda -->
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>#ID</th>
+            <th>Paciente</th>
+            <th>Médico Asignado</th>
+            <th>Fecha y Hora de Inicio</th>
+            <th>Hora de Fin</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cita of citas()">
+            <td class="fw-bold">{{ cita.id }}</td>
+            <td>{{ cita.nombrePaciente }}</td>
+            <td><span class="badge bg-info text-dark">{{ cita.nombreMedico }}</span></td>
+            <td>{{ cita.start | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ cita.end | date:'HH:mm' }}</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'bg-warning text-dark': cita.status === 'pendiente',
+                'bg-success': cita.status === 'completada',
+                'bg-danger': cita.status === 'cancelada'
+              }">
+                {{ cita.status | uppercase }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="citas().length === 0">
+            <td colspan="6" class="text-center py-4 text-muted">
+              No se encontraron citas programadas en este rango o filtro.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
