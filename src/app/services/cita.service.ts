@@ -30,4 +30,14 @@ export class CitaService {
   getNCitasXMedico(): Observable<NCitasXMedico[]> {
     return this.http.get<NCitasXMedico[]>(`${environment.url}/citas/NCitasXMedico`);
   }
+
+  // Nuevo método para obtener las citas del calendario (con filtros opcionales)
+  obtenerCitasCalendario(idMedico?: number, fechaInicio?: string, fechaFin?: string): Observable<any[]> {
+    let params: any = {};
+    if (idMedico) params.idMedico = idMedico;
+    if (fechaInicio) params.fechaInicio = fechaInicio;
+    if (fechaFin) params.fechaFin = fechaFin;
+
+    return this.http.get<any[]>(`${environment.url}/citas/calendario`, { params });
+  }
 }
