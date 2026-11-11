@@ -390,3 +390,35 @@ body {
   padding: 0 10px;
   margin-bottom: 12px;
 }
+
+/*icono del ojo*/
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Hacemos que el input de contraseña tenga un espacio a la derecha para que el texto no choque con el ícono */
+.input-with-icon input {
+  width: 100%;
+  padding-right: 40px; 
+}
+
+/* Estilos para el botón del ojo */
+.toggle-password-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d; /* Color gris sutil para el icono */
+  padding: 0;
+}
+
+.toggle-password-btn:hover {
+  color: #333; /* Se oscurece un poco al pasar el mouse */
+}

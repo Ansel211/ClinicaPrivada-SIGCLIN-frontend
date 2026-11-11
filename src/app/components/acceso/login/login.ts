@@ -28,6 +28,7 @@ export class LoginComponent {
   };
 
   errorMessage: string = '';
+  mostrarPassword: boolean = false;
 
   irARecuperar() {
     this.vistaActual = 'recuperar';
@@ -42,6 +43,11 @@ export class LoginComponent {
     if (this.errorMessage) {
       this.errorMessage = '';
     }
+      
+  }
+
+  togglePassword() {
+    this.mostrarPassword = !this.mostrarPassword;
   }
 
   iniciarSesion(event?: Event) {
