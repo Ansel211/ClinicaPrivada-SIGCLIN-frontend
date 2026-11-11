@@ -12,6 +12,11 @@ export interface CitaRequest {
   duracionMinutos: number;
   tipoConsulta: string;
 }
+//para citasPorFecha
+export interface CitasPorFecha {
+  fecha: string;
+  cantidad: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +36,11 @@ export class CitaService {
     return this.http.get<NCitasXMedico[]>(`${environment.url}/citas/NCitasXMedico`);
   }
 
-  // Nuevo método para obtener las citas del calendario (con filtros opcionales)
+  getCitasPorFecha(): Observable<CitasPorFecha[]> {
+    return this.http.get<CitasPorFecha[]>(`${environment.url}/citas/CitasPorFecha`);
+  }
+
+  // Metodo para obtener las citas del calendario (con filtros opcionales)
   obtenerCitasCalendario(idMedico?: number, fechaInicio?: string, fechaFin?: string): Observable<any[]> {
     let params: any = {};
     if (idMedico) params.idMedico = idMedico;

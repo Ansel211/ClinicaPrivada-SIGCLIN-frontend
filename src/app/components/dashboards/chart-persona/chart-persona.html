@@ -1,7 +1,7 @@
 <div class="container-fluid py-4">
-  <div class="row">
+  <div class="row g-4">
     <!-- Gráfico 1: Usuarios por Rol (Donut) -->
-    <div class="col-md-6 d-flex justify-content-center">
+    <div class="col-lg-4 col-md-6 d-flex justify-content-center">
       <div class="chart-wrapper w-100 p-3 bg-white rounded shadow-sm">
         <apx-chart
           [title]="chartOptionsDonut.title!"
@@ -15,9 +15,24 @@
     </div>
 
     <!-- Gráfico 2: Citas por Médico (Columnas Verticales) -->
-    <div class="col-md-6 d-flex justify-content-center">
+    <div class="col-lg-4 col-md-6 d-flex justify-content-center">
       <div class="chart-wrapper w-100 p-3 bg-white rounded shadow-sm">
         <app-chart-cita></app-chart-cita>
+      </div>
+    </div>
+
+    <!-- Gráfico 3: Tendencia de Citas por Fecha (Área) -->
+    <div class="col-lg-4 col-md-12 d-flex justify-content-center">
+      <div class="chart-wrapper w-100 p-3 bg-white rounded shadow-sm">
+        <apx-chart
+          [title]="chartOptionsArea.title!"
+          [series]="chartOptionsArea.series!"
+          [chart]="chartOptionsArea.chart!"
+          [xaxis]="chartOptionsArea.xaxis!"
+          [stroke]="chartOptionsArea.stroke!"
+          [dataLabels]="chartOptionsArea.dataLabels!"
+          [colors]="chartOptionsArea.colors!">
+        </apx-chart>
       </div>
     </div>
   </div>
