@@ -3,8 +3,14 @@
     <h4>Gestión de Pacientes</h4>
   </div>
   
-  <!-- Formulario de Registro -->
-  <form #pacienteForm="ngForm" (submit)="guardarPaciente(pacienteForm)" class="row g-3 p-4 border rounded bg-light mb-4 shadow-sm">
+  <!-- Formulario de Registro / Edición -->
+  <form #pacienteForm="ngForm" (submit)="guardarPaciente(pacienteForm)" autocomplete="off" class="row g-3 p-4 border rounded bg-light mb-4 shadow-sm">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+      <h5 class="text-secondary m-0">
+        {{ modoEdicion ? 'Editar Paciente' : 'Registrar Nuevo Paciente' }}
+      </h5>
+    </div>
+
     <div class="col-md-4">
       <label class="form-label">Nombres</label>
       <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.nombres" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" maxlength="30" name="nombres" required #nombresInput="ngModel">
@@ -12,6 +18,7 @@
         Solo se permiten letras y espacios simples.
       </div>
     </div>
+
     <div class="col-md-4">
       <label class="form-label">Apellido Paterno</label>
       <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.apellidoPaterno" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" maxlength="30" name="apellidoPaterno" required #apellidoPaternoInput="ngModel">
@@ -19,6 +26,7 @@
         Solo se permiten letras y espacios simples.
       </div>
     </div>
+
     <div class="col-md-4">
       <label class="form-label">Apellido Materno</label>
       <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.apellidoMaterno" pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+( [a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$" maxlength="30" name="apellidoMaterno" required #apellidoMaternoInput="ngModel">
@@ -26,6 +34,7 @@
         Solo se permiten letras y espacios simples.
       </div>
     </div>
+
     <div class="col-md-3">
       <label class="form-label">Nro. Documento (DNI)</label>
       <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.numDocumento" pattern="^[0-9]{8}$" maxlength="8" minlength="8" name="numDocumento" required #dniInput="ngModel">
@@ -33,6 +42,7 @@
         El DNI debe tener 8 dígitos numéricos.
       </div>
     </div>
+
     <div class="col-md-3">
       <label class="form-label">Teléfono</label>
       <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.telefono" pattern="^9[0-9]{8}$" maxlength="9" minlength="9" name="telefono" #telInput="ngModel">
@@ -40,6 +50,7 @@
         Debe ser un celular de 9 dígitos que comience con 9.
       </div>
     </div>
+
     <div class="col-md-3">
       <label class="form-label">Fecha de Nacimiento</label>
       <input type="date" class="form-control" [(ngModel)]="nuevoPaciente.fechaNacimiento" [max]="fechaMaxima" name="fechaNacimiento" required #fechaInput="ngModel">
@@ -47,43 +58,107 @@
         La fecha no puede ser futura ni estar vacía.
       </div>
     </div>
+
     <div class="col-md-3">
       <label class="form-label">Dirección</label>
       <input type="text" class="form-control" [(ngModel)]="nuevoPaciente.direccion" pattern="^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.\,\#\-]{5,100}$" maxlength="100" name="direccion">
     </div>
-    <div class="col-12">
-      <button type="submit" class="btn btn-primary">Guardar Paciente</button>
+
+    <div class="col-12 d-flex gap-2">
+      <button type="submit" class="btn" [ngClass]="modoEdicion ? 'btn-success' : 'btn-primary'" [disabled]="pacienteForm.invalid">
+        {{ modoEdicion ? 'Actualizar' : 'Registrar' }}
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="cancelarEdicion(pacienteForm)">
+        Cancelar
+      </button>
     </div>
   </form>
 
-  <!-- Tabla de Pacientes Registrados -->
+  <!-- Panel Detalle con Filtros por Columna -->
   <div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+      <div class="row g-2 align-items-end">
+        <div class="col">
+          <label class="form-label small text-muted mb-1">Ap. Paterno</label>
+          <input type="text" class="form-control form-control-sm" placeholder="Buscar..."
+            [ngModel]="filtro().apellidoPaterno" (ngModelChange)="actualizarFiltro('apellidoPaterno', $event)">
+        </div>
+        <div class="col">
+          <label class="form-label small text-muted mb-1">Ap. Materno</label>
+          <input type="text" class="form-control form-control-sm" placeholder="Buscar..."
+            [ngModel]="filtro().apellidoMaterno" (ngModelChange)="actualizarFiltro('apellidoMaterno', $event)">
+        </div>
+        <div class="col">
+          <label class="form-label small text-muted mb-1">Nombres</label>
+          <input type="text" class="form-control form-control-sm" placeholder="Buscar..."
+            [ngModel]="filtro().nombres" (ngModelChange)="actualizarFiltro('nombres', $event)">
+        </div>
+        <div class="col">
+          <label class="form-label small text-muted mb-1">N° Documento</label>
+          <input type="text" class="form-control form-control-sm" placeholder="Buscar..."
+            [ngModel]="filtro().numDocumento" (ngModelChange)="actualizarFiltro('numDocumento', $event)">
+        </div>
+        <div class="col">
+          <label class="form-label small text-muted mb-1">Teléfono</label>
+          <input type="text" class="form-control form-control-sm" placeholder="Buscar..."
+            [ngModel]="filtro().telefono" (ngModelChange)="actualizarFiltro('telefono', $event)">
+        </div>
+        <div class="col-auto">
+          <button type="button" class="btn btn-sm btn-outline-secondary" title="Limpiar filtros" (click)="limpiarFiltros()">
+            <i class="bi bi-x-circle"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-2">
+        <small class="text-muted">
+          Mostrando {{ listaPacientesFiltrados().length }} de {{ listaPacientes().length }} registros
+        </small>
+      </div>
+    </div>
+
+    <!-- Tabla de Pacientes -->
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th>#ID</th>
-              <th>Documento</th>
-              <th>Nombres y Apellidos</th>
+              <th>Nro.</th>
+              <th>Ap. Paterno</th>
+              <th>Ap. Materno</th>
+              <th>Nombres</th>
+              <th>N° Doc.</th>
+              <th>Fecha Nac.</th>
               <th>Teléfono</th>
               <th>Dirección</th>
+              <th class="text-center">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            @for (p of listaPacientes(); track p.idPaciente) {
-              <tr>
-                <td>{{ p.idPaciente }}</td>
+            @for (p of listaPacientesFiltrados(); track p.idPaciente; let idx = $index) {
+              <tr [class.table-active]="idPacienteEnEdicion === p.idPaciente">
+                <td>{{ idx + 1 }}</td>
+                <td>{{ p.apellidoPaterno }}</td>
+                <td>{{ p.apellidoMaterno }}</td>
+                <td>{{ p.nombres }}</td>
                 <td class="fw-bold">{{ p.numDocumento }}</td>
-                <td>{{ p.nombres }} {{ p.apellidoPaterno }} {{ p.apellidoMaterno }}</td>
+                <td>{{ p.fechaNacimiento }}</td>
                 <td>{{ p.telefono || 'No registrado' }}</td>
                 <td>{{ p.direccion || 'No registrada' }}</td>
+                <td class="text-center text-nowrap">
+                  <button class="btn btn-warning btn-sm me-1" (click)="seleccionarParaEditar(p)" title="Editar">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button class="btn btn-danger btn-sm" (click)="eliminarPaciente(p)" title="Eliminar">
+                    <i class="bi bi-trash-fill"></i>
+                  </button>
+                </td>
               </tr>
             }
-            @if (listaPacientes().length === 0) {
+            @if (listaPacientesFiltrados().length === 0) {
               <tr>
-                <td colspan="5" class="text-center py-4 text-muted">
-                  No hay pacientes registrados en el sistema.
+                <td colspan="9" class="text-center py-4 text-muted">
+                  No se encontraron pacientes registrados o coincidentes con los filtros.
                 </td>
               </tr>
             }

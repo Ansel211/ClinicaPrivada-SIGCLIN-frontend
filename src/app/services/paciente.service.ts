@@ -16,4 +16,13 @@ export class PacienteService {
   registrarPaciente(paciente: any): Observable<any> {
     return this.http.post<any>(`${environment.url}/pacientes`, paciente);
   }
+  
+  actualizarPaciente(id: number, paciente: any): Observable<any> {
+    return this.http.put<any>(`${environment.url}/pacientes/${id}`, paciente);
+  }
+
+  eliminarPaciente(id: number): Observable<any> {
+  return this.http.delete<any>(`${environment.url}/pacientes/${id}`);
+  }
+
 }
