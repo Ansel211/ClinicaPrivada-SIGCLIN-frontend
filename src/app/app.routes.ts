@@ -14,6 +14,7 @@ import { PacientesComponent } from './components/gestion-pacientes/pacientes/pac
 import { RegistrarRolComponent } from './components/gestion-mantenimiento/registrar-rol/registrar-rol';
 import { RegistrarModuloComponent } from './components/gestion-mantenimiento/registrar-modulo/registrar-modulo';
 import { RegistrarUsuarioComponent } from './components/gestion-mantenimiento/registrar-usuario/registrar-usuario';
+import { HistoriaClinicaComponent } from './components/gestion-medica/historia-clinica/historia-clinica';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -39,10 +40,16 @@ export const routes: Routes = [
         canActivate: [moduloGuard] 
       },
       { 
-        path: 'calendario', // <-- Sin repetir 'principal/'
+        path: 'calendario',
         component: CalendarioCitasComponent,
         canActivate: [moduloGuard] // <-- Usando el guard de módulos normalmente
-      }, // <-- ¡Coma agregada aquí que faltaba!
+      },
+      
+      { 
+        path: 'historia-clinica', 
+        component: HistoriaClinicaComponent,
+        canActivate: [moduloGuard] 
+      },
       { 
         path: 'medicos', 
         component: MedicosComponent,

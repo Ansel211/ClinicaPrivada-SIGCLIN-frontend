@@ -1,8 +1,13 @@
 <div class="container-fluid p-3">
   <h2 class="mb-4">Gestión de Roles</h2>
 
-  <!-- Formulario de Registro -->
+  <!-- Formulario de Registro / Edición -->
   <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <h6 class="mb-0 text-secondary">
+        {{ modoEdicion ? 'Editar Rol: ' + rolForm.get('codigo')?.value : 'Registrar Nuevo Rol' }}
+      </h6>
+    </div>
     <div class="card-body">
       <form [formGroup]="rolForm" (ngSubmit)="guardarRol()">
         <div class="row g-3">
@@ -21,7 +26,6 @@
             }
           </div>
 
-
           <!-- Sección de Selección de Módulos -->
           <div class="col-12 mt-3">
             <label class="form-label font-weight-bold">Módulos Permitidos para este Rol:</label>
@@ -33,6 +37,7 @@
                       class="form-check-input" 
                       type="checkbox" 
                       [id]="'mod_' + mod.idMod"
+                      [checked]="estaModuloSeleccionado(mod)"
                       (change)="onModuloCheck(mod, $event)">
                     <label class="form-check-label" [for]="'mod_' + mod.idMod">
                       {{ mod.descripcion }}
@@ -46,9 +51,14 @@
           </div>
         </div>
 
-        <div class="mt-3 text-end">
-          <button type="submit" class="btn btn-primary">
-            <i class="bi bi-save me-1"></i> Guardar Rol
+        <div class="mt-3 d-flex justify-content-end gap-2">
+          @if (modoEdicion) {
+            <button type="button" class="btn btn-secondary" (click)="cancelarEdicion()">
+              Cancelar
+            </button>
+          }
+          <button type="submit" class="btn" [ngClass]="modoEdicion ? 'btn-success' : 'btn-primary'" [disabled]="rolForm.invalid">
+            <i class="bi bi-save me-1"></i> {{ modoEdicion ? 'Actualizar Rol' : 'Guardar Rol' }}
           </button>
         </div>
       </form>
@@ -67,24 +77,37 @@
             <th>#ID</th>
             <th>Código</th>
             <th>Descripción</th>
+            <th>Módulos Asignados</th>
             <th>Estado</th>
+            <th class="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          @for (rol of roles(); track rol.idRol) {
-            <tr>
-              <td>{{ rol.idRol }}</td>
+          @for (rol of roles(); track rol.idRol; let idx = $index) {
+            <tr [class.table-active]="idRolEnEdicion === rol.idRol">
+              <td>{{ idx + 1 }}</td>
               <td><span class="badge bg-primary">{{ rol.codigo }}</span></td>
               <td>{{ rol.descripcion }}</td>
+              <td>
+                <span class="badge bg-secondary">{{ rol.modulos?.length || 0 }} módulos</span>
+              </td>
               <td>
                 <span class="badge" [ngClass]="rol.activo ? 'bg-success' : 'bg-danger'">
                   {{ rol.activo ? 'Activo' : 'Inactivo' }}
                 </span>
               </td>
+              <td class="text-center text-nowrap">
+                <button type="button" class="btn btn-warning btn-sm me-1" (click)="seleccionarParaEditar(rol)" title="Editar rol">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" (click)="eliminarRol(rol)" title="Eliminar rol">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="4" class="text-center py-3 text-muted">No hay roles registrados aún.</td>
+              <td colspan="6" class="text-center py-3 text-muted">No hay roles registrados aún.</td>
             </tr>
           }
         </tbody>
