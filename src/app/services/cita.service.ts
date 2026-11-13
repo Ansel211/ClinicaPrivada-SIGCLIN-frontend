@@ -49,4 +49,13 @@ export class CitaService {
 
     return this.http.get<any[]>(`${environment.url}/citas/calendario`, { params });
   }
+  
+  obtenerHorasOcupadas(idMedico: number, fecha: string): Observable<string[]> {
+  return this.http.get<string[]>(`${environment.url}/citas/ocupadas/${idMedico}/${fecha}`);
+  }
+
+  obtenerCuposLibres(idMedico: number, fecha: string, duracionMinutos: number): Observable<string[]> {
+  return this.http.get<string[]>(`${environment.url}/citas/cupos-libres?idMedico=${idMedico}&fecha=${fecha}&duracionMinutos=${duracionMinutos}`);
+  }
+
 }

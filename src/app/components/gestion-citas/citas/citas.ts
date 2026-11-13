@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CitaService } from '../../../services/cita.service';
 import { MedicoService } from '../../../services/medico.service';
 import { ToastService } from '../../../services/toast.service';
-import { PacienteService } from '../../../services/paciente.service'; // <-- 1. Faltaba importar esto
+import { PacienteService } from '../../../services/paciente.service';
 
 @Component({
   selector: 'app-citas',
@@ -65,6 +65,18 @@ export class CitasComponent implements OnInit {
     }
   };
 
+  // Variables para la grilla dinámica de horarios (Motor de Backend)
+  cuposDisponibles: string[] = [];
+  cargandoHoras = false;
+
+  nuevaCita = {
+    idPaciente: '', 
+    idMedico: '',
+    fecha: '',
+    hora: '',
+    duracionMinutos: 30
+  };
+
   get listaEspecialidades(): string[] {
     return Object.keys(this.consultasPorEspecialidad);
   }
@@ -90,22 +102,9 @@ export class CitasComponent implements OnInit {
     );
   }
 
-  mostrarSelectorHora: boolean = false;
-  horaInput: string = '13';
-  minutoInput: string = '30';
-
-  nuevaCita = {
-    idPaciente: '', 
-    idMedico: '',
-    fecha: '',
-    hora: '13:30',
-    duracionMinutos: 30
-  };
-
   ngOnInit(): void {
     this.cargarMedicos();
     this.cargarPacientes();
-    this.actualizarHoraCompleta();
   }
 
   cargarMedicos(): void {
@@ -119,7 +118,6 @@ export class CitasComponent implements OnInit {
   }
 
   cargarPacientes(): void {
-    // 2. Tipado explícito (data: any[]) y (err: any) para evitar errores de compilación TS7006
     this.pacienteService.listarPacientes().subscribe({
       next: (data: any[]) => this.todosLosPacientes.set(data),
       error: (err: any) => console.error('Error cargando pacientes:', err)
@@ -130,61 +128,54 @@ export class CitasComponent implements OnInit {
     this.tipoConsultaSeleccionado = ''; 
     this.nuevaCita.idMedico = ''; 
     this.nuevaCita.duracionMinutos = 30;
+    this.nuevaCita.hora = '';
+    this.cuposDisponibles = [];
   }
 
   onTipoConsultaChange(): void {
     if (this.especialidadSeleccionada && this.tipoConsultaSeleccionado) {
       this.nuevaCita.duracionMinutos = this.consultasPorEspecialidad[this.especialidadSeleccionada][this.tipoConsultaSeleccionado] || 30;
+      this.verificarDisponibilidad(); // Recalcula los cupos si cambia la duración
     }
   }
 
-  actualizarHoraCompleta() {
-    const h = (this.horaInput || '0').toString().padStart(2, '0');
-    const m = (this.minutoInput || '0').toString().padStart(2, '0');
-    this.nuevaCita.hora = `${h}:${m}`;
+  // --- LÓGICA DE GRILLA HORARIA (MOTOR BACKEND) ---
+
+  verificarDisponibilidad() {
+    this.nuevaCita.hora = ''; // Resetea la hora elegida al cambiar fecha o médico
+    
+    if (this.nuevaCita.idMedico && this.nuevaCita.fecha && this.tipoConsultaSeleccionado) {
+      this.cargandoHoras = true;
+      const idMed = parseInt(this.nuevaCita.idMedico, 10);
+      const duracion = this.nuevaCita.duracionMinutos || 30;
+      
+      this.citaService.obtenerCuposLibres(idMed, this.nuevaCita.fecha, duracion).subscribe({
+        next: (cupos) => {
+          this.cuposDisponibles = cupos; 
+          this.cargandoHoras = false;
+        },
+        error: () => {
+          this.cuposDisponibles = [];
+          this.cargandoHoras = false;
+        }
+      });
+    }
   }
 
-  incrementarHora() {
-    let h = parseInt(this.horaInput || '0', 10);
-    if (isNaN(h)) h = 0;
-    h = (h + 1) % 24;
-    this.horaInput = h.toString();
-    this.actualizarHoraCompleta();
+  seleccionarHora(hora: string) {
+    this.nuevaCita.hora = hora;
   }
 
-  decrementarHora() {
-    let h = parseInt(this.horaInput || '0', 10);
-    if (isNaN(h)) h = 0;
-    h = (h - 1 + 24) % 24;
-    this.horaInput = h.toString();
-    this.actualizarHoraCompleta();
-  }
-
-  incrementarMinuto() {
-    let m = parseInt(this.minutoInput || '0', 10);
-    if (isNaN(m)) m = 0;
-    m = (m + 5) % 60;
-    this.minutoInput = m.toString();
-    this.actualizarHoraCompleta();
-  }
-
-  decrementarMinuto() {
-    let m = parseInt(this.minutoInput || '0', 10);
-    if (isNaN(m)) m = 0;
-    m = (m - 5 + 60) % 60;
-    this.minutoInput = m.toString();
-    this.actualizarHoraCompleta();
-  }
+  // --- FIN LÓGICA DE GRILLA ---
 
   registrarCita(event: Event): void {
     event.preventDefault();
 
     const idPacienteNum = parseInt(this.nuevaCita.idPaciente, 10);
     const idMedicoNum = parseInt(this.nuevaCita.idMedico, 10);
-    this.actualizarHoraCompleta();
 
     if (isNaN(idPacienteNum) || !this.especialidadSeleccionada || !this.tipoConsultaSeleccionado || isNaN(idMedicoNum) || !this.nuevaCita.fecha || !this.nuevaCita.hora) {
-      this.toastService.show('Por favor completa todos los campos del formulario.', 'warning');
+      this.toastService.show('Por favor completa todos los campos y selecciona una hora disponible.', 'warning');
       return;
     }
 
@@ -204,14 +195,12 @@ export class CitasComponent implements OnInit {
         this.toastService.show('¡Cita registrada con éxito en la base de datos!', 'success');
         this.especialidadSeleccionada = '';
         this.tipoConsultaSeleccionado = '';
-        this.horaInput = '13';
-        this.minutoInput = '30';
-        this.actualizarHoraCompleta();
-        this.nuevaCita = { idPaciente: '', idMedico: '', fecha: '', hora: this.nuevaCita.hora, duracionMinutos: 30 };
+        this.cuposDisponibles = [];
+        this.nuevaCita = { idPaciente: '', idMedico: '', fecha: '', hora: '', duracionMinutos: 30 };
       },
-      error: (err: any) => { // 3. Tipado explícito para 'err' (soluciona TS2571 y TS7006)
+      error: (err: any) => {
         console.error('Error al guardar la cita:', err);
-        const errorObj = err.error as any; // Casteo seguro para TypeScript
+        const errorObj = err.error as any; 
         const mensaje = typeof errorObj === 'string' 
           ? errorObj 
           : (errorObj?.message || 'Error al guardar la cita');

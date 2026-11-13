@@ -40,15 +40,13 @@
     </select>
   </div>
 
- 
-  <!-- Asignar Médico (Filtrado por especialidad) -->
+  <!-- Asignar Médico (Dispara verificarDisponibilidad) -->
   <div class="mb-3">
     <label class="form-label">Asignar Médico</label>
-    <select class="form-select" [(ngModel)]="nuevaCita.idMedico" name="idMedico" [disabled]="!especialidadSeleccionada" required>
+    <select class="form-select" [(ngModel)]="nuevaCita.idMedico" name="idMedico" (change)="verificarDisponibilidad()" [disabled]="!especialidadSeleccionada" required>
       <option value="" disabled selected>
         {{ especialidadSeleccionada ? 'Seleccione un médico disponible' : 'Primero seleccione una especialidad' }}
       </option>
-      <!-- IMPORTANTE: Sin paréntesis en medicosFiltrados -->
       @for (medico of medicosFiltrados; track medico.id) {
         <option [value]="medico.id || medico.idMedico">
           Dr(a). {{ medico.nombre }}
@@ -57,68 +55,13 @@
     </select>
   </div>
   
-  <!-- Fecha, Hora y Duración Automática -->
   <div class="row">
-    <!-- Fecha -->
+    <!-- Fecha (Dispara verificarDisponibilidad) -->
     <div class="col-md-4 mb-3">
       <label class="form-label">Fecha</label>
-      <input type="date" class="form-control" [(ngModel)]="nuevaCita.fecha" name="fecha" [min]="fechaMinima" required>
+      <input type="date" class="form-control" [(ngModel)]="nuevaCita.fecha" name="fecha" (change)="verificarDisponibilidad()" [min]="fechaMinima" required>
     </div>
     
-    <!-- Hora de Inicio  -->
-    <div class="col-md-4 mb-3 position-relative">
-      <label class="form-label">Hora de Inicio</label>
-      
-      <div class="form-control d-flex justify-content-between align-items-center bg-white cursor-pointer" 
-           (click)="mostrarSelectorHora = !mostrarSelectorHora">
-        <span class="fw-medium text-dark">
-          {{ (horaInput ? horaInput.toString().padStart(2, '0') : '13') }}:{{ (minutoInput ? minutoInput.toString().padStart(2, '0') : '30') }}
-        </span>
-        <span class="text-secondary" style="font-size: 0.9rem;">✏️</span>
-      </div>
-
-      <!-- Tarjeta flotante con flechitas -->
-      @if (mostrarSelectorHora) {
-        <div class="time-picker-card shadow p-3 bg-white border rounded position-absolute mt-1 w-100" style="z-index: 1050; left: 0;">
-          <div class="d-flex align-items-center justify-content-center gap-2">
-            
-            <!-- Horas -->
-            <div class="text-center" style="width: 70px;">
-              <button type="button" class="btn btn-sm btn-light w-100 mb-1 border py-0" (click)="incrementarHora()">▲</button>
-              <input 
-                type="number" 
-                class="form-control text-center p-1" 
-                [(ngModel)]="horaInput" 
-                name="horaInput" 
-                (ngModelChange)="actualizarHoraCompleta()"
-                min="0" max="23">
-              <button type="button" class="btn btn-sm btn-light w-100 mt-1 border py-0" (click)="decrementarHora()">▼</button>
-            </div>
-
-            <span class="fw-bold fs-4 text-secondary">:</span>
-
-            <!-- Minutos -->
-            <div class="text-center" style="width: 70px;">
-              <button type="button" class="btn btn-sm btn-light w-100 mb-1 border py-0" (click)="incrementarMinuto()">▲</button>
-              <input 
-                type="number" 
-                class="form-control text-center p-1" 
-                [(ngModel)]="minutoInput" 
-                name="minutoInput" 
-                (ngModelChange)="actualizarHoraCompleta()"
-                min="0" max="59" step="5">
-              <button type="button" class="btn btn-sm btn-light w-100 mt-1 border py-0" (click)="decrementarMinuto()">▼</button>
-            </div>
-
-          </div>
-
-          <div class="text-end mt-3">
-            <button type="button" class="btn btn-sm btn-primary w-100 py-1" (click)="mostrarSelectorHora = false">Aceptar</button>
-          </div>
-        </div>
-      }
-    </div>
-
     <!-- Duración Automática -->
     <div class="col-md-4 mb-3">
       <label class="form-label">Duración (Automática)</label>
@@ -130,5 +73,52 @@
     </div>
   </div>
 
-  <button type="submit" class="btn btn-primary">Registrar Cita</button>
+  <!-- Grilla Dinámica de Cupos Seguros (Motor Backend) -->
+  <div class="col-12 mb-4">
+    <label class="form-label fw-bold">Cupos Disponibles de Atención</label>
+    
+    @if (!nuevaCita.idMedico || !nuevaCita.fecha || !tipoConsultaSeleccionado) {
+      <div class="alert alert-secondary py-2 text-center text-muted border">
+        Seleccione especialidad, tipo de consulta, médico y fecha para visualizar los cupos libres.
+      </div>
+    } @else if (cargandoHoras) {
+      <div class="alert border py-3 text-center text-primary">
+        <div class="spinner-border spinner-border-sm me-2"></div> Analizando agenda del médico...
+      </div>
+    } @else {
+      
+      <div class="d-flex flex-wrap gap-2 p-3 border rounded bg-white">
+        @for (hora of cuposDisponibles; track hora) {
+          <button type="button" 
+            class="btn btn-sm shadow-sm transition-all"
+            style="width: 85px;"
+            [ngClass]="{
+              'btn-success text-white border-success fw-bold': nuevaCita.hora === hora,
+              'btn-outline-primary': nuevaCita.hora !== hora
+            }"
+            (click)="seleccionarHora(hora)">
+            
+            <i class="bi bi-clock me-1"></i> {{ hora }}
+          </button>
+        }
+        
+        @if (cuposDisponibles.length === 0) {
+          <div class="w-100 text-center text-danger small py-3">
+            <i class="bi bi-calendar-x fs-4 d-block mb-1"></i>
+            El doctor no atiende en la fecha seleccionada o ya tiene la agenda totalmente llena.
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Botón de Confirmación de Cita (Ahora dentro del formulario principal) -->
+  <div class="col-12 mt-4 text-end">
+    <button 
+      type="submit" 
+      class="btn btn-primary btn-lg px-5 shadow"
+      [disabled]="!nuevaCita.idPaciente || !nuevaCita.idMedico || !nuevaCita.fecha || !nuevaCita.hora">
+      <i class="bi bi-check-circle-fill me-2"></i> Confirmar y Registrar Cita
+    </button>
+  </div>
 </form>
