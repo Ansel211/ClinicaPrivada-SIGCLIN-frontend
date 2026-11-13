@@ -1,0 +1,262 @@
+<div class="container-fluid p-4 no-print">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Emisión de Recetas Electrónicas y Diagnósticos</h4>
+  </div>
+
+  <!-- Formulario de Emisión de Receta -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h6 class="mb-0"><i class="bi bi-file-earmark-medical me-2"></i>Nueva Prescripción Médica</h6>
+    </div>
+    <div class="card-body bg-light">
+      <div class="row g-3 mb-3">
+        <div class="col-md-5">
+          <label class="form-label fw-bold">Paciente</label>
+          <select class="form-select" [(ngModel)]="pacienteSeleccionadoId" (change)="onPacienteChange()">
+            <option [ngValue]="null" disabled>-- Seleccione un paciente --</option>
+            @for (p of listaPacientes(); track p.idPaciente) {
+              <option [ngValue]="p.idPaciente">
+                {{ p.numDocumento }} - {{ p.nombres }} {{ p.apellidoPaterno }} {{ p.apellidoMaterno }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Médico Prescriptor</label>
+          <select class="form-select" [(ngModel)]="medicoSeleccionadoId">
+            <option [ngValue]="null" disabled>-- Seleccione un médico --</option>
+            @for (m of listaMedicos(); track m.id) {
+              <option [ngValue]="m.id">Dr(a). {{ m.nombre }} - {{ m.especialidad }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label fw-bold">Fecha de Emisión</label>
+          <input type="date" class="form-control" [(ngModel)]="fechaEmision">
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Diagnóstico Clínico (CIE-10 / Descripción)</label>
+          <textarea class="form-control" rows="2" [(ngModel)]="diagnostico"
+            placeholder="Ej: Faringoamigdalitis aguda (J02.9)"></textarea>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Indicaciones Generales y Cuidados</label>
+          <textarea class="form-control" rows="2" [(ngModel)]="indicacionesGenerales"
+            placeholder="Ej: Hidratación abundante, reposo relativo, evitar bebidas heladas..."></textarea>
+        </div>
+      </div>
+
+      <!-- Tabla Dinámica de Medicamentos y Dosificación -->
+      <div class="border rounded p-3 bg-white mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0 fw-bold text-secondary">Medicamentos y Dosificación</h6>
+          <button type="button" class="btn btn-outline-primary btn-sm" (click)="agregarMedicamento()">
+            <i class="bi bi-plus-circle me-1"></i> Agregar Medicamento
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Medicamento / Concentración</th>
+                <th>Dosis</th>
+                <th>Frecuencia</th>
+                <th>Duración</th>
+                <th>Indicaciones específicas</th>
+                <th style="width: 50px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of detalles; track $index) {
+                <tr>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.medicamento" placeholder="Ej: Paracetamol 500mg"></td>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.dosis" placeholder="Ej: 1 tableta"></td>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.frecuencia" placeholder="Ej: Cada 8 horas"></td>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.duracion" placeholder="Ej: Por 3 días"></td>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.indicaciones" placeholder="Vía oral, después de comidas"></td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-outline-danger btn-sm" (click)="eliminarMedicamento($index)" [disabled]="detalles.length === 1">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Validación y Firma Digital -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 p-3 border rounded bg-white">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="checkFirma" [(ngModel)]="firmaConfirmada">
+          <label class="form-check-label fw-semibold text-dark" for="checkFirma">
+            <i class="bi bi-shield-check text-success me-1"></i>
+            Validar prescripción y generar Firma Digital Médica con sello electrónico
+          </label>
+        </div>
+
+        <button type="button" class="btn btn-primary" (click)="emitirReceta()">
+          <i class="bi bi-check2-circle me-1"></i> Emitir Receta Electrónica
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historial de Recetas Emitidas al Paciente -->
+  <div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <h6 class="mb-0 text-secondary">Recetas Emitidas del Paciente</h6>
+      <span class="badge bg-info text-dark">{{ recetasPaciente().length }} recetas</span>
+    </div>
+    <div class="card-body">
+      @if (!pacienteSeleccionadoId) {
+        <div class="text-center py-4 text-muted">Seleccione un paciente para ver sus recetas emitidas.</div>
+      } @else if (recetasPaciente().length === 0) {
+        <div class="text-center py-4 text-muted">Este paciente no tiene recetas registradas aún.</div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Código Validación</th>
+                <th>Fecha</th>
+                <th>Médico</th>
+                <th>Diagnóstico</th>
+                <th>Medicamentos</th>
+                <th class="text-center">PDF / Impresión</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of recetasPaciente(); track r.id) {
+                <tr>
+                  <td><span class="badge bg-success-subtle text-success border border-success">{{ r.codigoValidacion }}</span></td>
+                  <td class="text-nowrap">{{ r.fechaEmision }}</td>
+                  <td>Dr(a). {{ r.medico?.nombre }}</td>
+                  <td>{{ r.diagnostico }}</td>
+                  <td>{{ r.detalles?.length || 0 }} fármacos</td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-outline-danger btn-sm" (click)="abrirVistaPDF(r)">
+                      <i class="bi bi-file-earmark-pdf-fill me-1"></i> Ver / PDF
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Vista Previa e Impresión en PDF (Receta Oficial) -->
+@if (recetaSeleccionadaPDF) {
+  <div class="modal-backdrop-custom">
+    <div class="modal-dialog-custom card shadow-lg">
+      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center no-print">
+        <span><i class="bi bi-printer me-2"></i>Vista Previa de Receta Médica Electrónica</span>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-success btn-sm" (click)="imprimirPDF()">
+            <i class="bi bi-file-earmark-pdf me-1"></i> Exportar PDF / Imprimir
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="cerrarVistaPDF()">Cerrar</button>
+        </div>
+      </div>
+
+      <div id="zona-impresion-receta" class="card-body p-4 bg-white">
+        <!-- Encabezado de Clínica -->
+        <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+          <div>
+            <h3 class="text-primary fw-bold mb-0">CLÍNICA PRIVADA SIGCLIN</h3>
+            <small class="text-muted">Sistema Integral de Gestión Clínica - Recetario Electrónico Oficial</small>
+          </div>
+          <div class="text-end">
+            <span class="badge bg-primary fs-6">RECETA MÉDICA</span>
+            <div class="small text-muted mt-1"><strong>Fecha:</strong> {{ recetaSeleccionadaPDF.fechaEmision }}</div>
+            <div class="small text-muted"><strong>N° Doc:</strong> {{ recetaSeleccionadaPDF.codigoValidacion }}</div>
+          </div>
+        </div>
+
+        <!-- Datos del Paciente y Médico -->
+        <div class="row g-2 border rounded p-2 mb-3 bg-light">
+          <div class="col-6">
+            <strong>Paciente:</strong> {{ recetaSeleccionadaPDF.paciente?.nombres }}
+            {{ recetaSeleccionadaPDF.paciente?.apellidoPaterno }} {{ recetaSeleccionadaPDF.paciente?.apellidoMaterno }}
+          </div>
+          <div class="col-6">
+            <strong>DNI / Documento:</strong> {{ recetaSeleccionadaPDF.paciente?.numDocumento }}
+          </div>
+          <div class="col-6">
+            <strong>Médico Tratante:</strong> Dr(a). {{ recetaSeleccionadaPDF.medico?.nombre }}
+          </div>
+          <div class="col-6">
+            <strong>Especialidad:</strong> {{ recetaSeleccionadaPDF.medico?.especialidad }}
+          </div>
+          <div class="col-12 border-top pt-2 mt-2">
+            <strong>Diagnóstico:</strong> {{ recetaSeleccionadaPDF.diagnostico }}
+          </div>
+        </div>
+
+        <!-- Prescripción Rp/ -->
+        <h6 class="fw-bold text-primary mb-2">Rp/ Prescripción Farmacológica:</h6>
+        <table class="table table-bordered table-sm mb-3">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Medicamento</th>
+              <th>Dosis</th>
+              <th>Frecuencia</th>
+              <th>Duración</th>
+              <th>Indicaciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of recetaSeleccionadaPDF.detalles; track d.id; let i = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td class="fw-semibold">{{ d.medicamento }}</td>
+                <td>{{ d.dosis }}</td>
+                <td>{{ d.frecuencia }}</td>
+                <td>{{ d.duracion }}</td>
+                <td>{{ d.indicaciones || '-' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (recetaSeleccionadaPDF.indicacionesGenerales) {
+          <div class="border rounded p-2 mb-4">
+            <strong>Indicaciones Generales:</strong>
+            <p class="mb-0 small">{{ recetaSeleccionadaPDF.indicacionesGenerales }}</p>
+          </div>
+        }
+
+        <!-- Sello de Firma Digital y Validación Médica -->
+        <div class="row mt-4 pt-3 border-top align-items-center">
+          <div class="col-7">
+            <div class="border border-success rounded p-2 bg-success-subtle">
+              <div class="fw-bold text-success small">
+                <i class="bi bi-patch-check-fill me-1"></i> DOCUMENTO FIRMADO DIGITALMENTE
+              </div>
+              <div class="small text-dark"><strong>Código de Validación:</strong> {{ recetaSeleccionadaPDF.codigoValidacion }}</div>
+              <div class="small text-muted"><strong>Sello de Tiempo:</strong> {{ recetaSeleccionadaPDF.fechaFirma }}</div>
+              <div class="small text-muted">Validado electrónicamente por Dr(a). {{ recetaSeleccionadaPDF.medico?.nombre }}</div>
+            </div>
+          </div>
+          <div class="col-5 text-center">
+            <div class="border-top border-dark mx-4 mt-4 pt-1">
+              <div class="fw-bold small">Dr(a). {{ recetaSeleccionadaPDF.medico?.nombre }}</div>
+              <div class="text-muted small">{{ recetaSeleccionadaPDF.medico?.especialidad }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -15,6 +15,7 @@ import { RegistrarRolComponent } from './components/gestion-mantenimiento/regist
 import { RegistrarModuloComponent } from './components/gestion-mantenimiento/registrar-modulo/registrar-modulo';
 import { RegistrarUsuarioComponent } from './components/gestion-mantenimiento/registrar-usuario/registrar-usuario';
 import { HistoriaClinicaComponent } from './components/gestion-medica/historia-clinica/historia-clinica';
+import { RecetasComponent } from './components/gestion-medica/recetas/recetas';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -50,6 +51,13 @@ export const routes: Routes = [
         component: HistoriaClinicaComponent,
         canActivate: [moduloGuard] 
       },
+
+      {
+      path: 'recetas',
+      component: RecetasComponent,
+      canActivate: [moduloGuard]
+      },
+
       { 
         path: 'medicos', 
         component: MedicosComponent,
