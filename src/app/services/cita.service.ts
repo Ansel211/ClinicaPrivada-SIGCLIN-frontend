@@ -18,6 +18,27 @@ export interface CitasPorFecha {
   cantidad: number;
 }
 
+export interface TurnoSemanal {
+  diaSemana: number;
+  horaInicio: string;
+  horaFin: string;
+}
+
+export interface CitaBloqueSemanal {
+  id: number;
+  fecha: string;
+  horaInicio: string;
+  duracionMinutos: number;
+  paciente: string;
+  tipoConsulta: string;
+  estado: string;
+}
+
+export interface AgendaSemanalResponse {
+  turnos: TurnoSemanal[];
+  citas: CitaBloqueSemanal[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -56,6 +77,12 @@ export class CitaService {
 
   obtenerCuposLibres(idMedico: number, fecha: string, duracionMinutos: number): Observable<string[]> {
   return this.http.get<string[]>(`${environment.url}/citas/cupos-libres?idMedico=${idMedico}&fecha=${fecha}&duracionMinutos=${duracionMinutos}`);
+  }
+
+  obtenerAgendaSemanal(idMedico: number, fechaInicio: string, fechaFin: string): Observable<AgendaSemanalResponse> {
+    return this.http.get<AgendaSemanalResponse>(
+      `${environment.url}/citas/agenda-semanal?idMedico=${idMedico}&fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`
+    );
   }
 
 }

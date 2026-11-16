@@ -4,16 +4,20 @@ import { finalize } from 'rxjs';
 import { LoadingService } from '../services/loading.service';
 
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
-  if (req.url.includes('medicos')) {
+  if (
+    req.url.includes('medicos') ||
+    req.url.includes('agenda-semanal') ||
+    req.url.includes('cupos-libres')
+  ) {
     return next(req);
   }
-  const loadingService = inject(LoadingService);
 
-  loadingService.show(); //muestra el spinner antes de enviar la peticion
+  const loadingService = inject(LoadingService);
+  loadingService.show();
 
   return next(req).pipe(
     finalize(() => {
-      loadingService.hide(); //oculta el spinner cuando la peticion se completa, ya sea con exito o error 
+      loadingService.hide();
     })
   );
 };

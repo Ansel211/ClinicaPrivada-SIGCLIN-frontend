@@ -1,124 +1,276 @@
 <form (submit)="registrarCita($event)">
-  
-  <!-- Seleccionar Paciente Registrado (Busqueda por DNI / Apellidos) -->
-  <div class="mb-3">
-    <label class="form-label">Paciente (DNI - Nombres y Apellidos)</label>
-    <select class="form-select" [(ngModel)]="nuevaCita.idPaciente" name="idPaciente" required>
-      <option value="" disabled selected>Seleccione un paciente registrado...</option>
-      @for (p of todosLosPacientes(); track p.idPaciente) {
-        <option [value]="p.idPaciente">
-          [{{ p.numDocumento }}] - {{ p.nombres }} {{ p.apellidoPaterno }} {{ p.apellidoMaterno || '' }}
-        </option>
-      }
-    </select>
-    <div class="form-text text-muted">
-      Si el paciente es nuevo, regístralo primero en la sección de <a routerLink="/dashboard/pacientes" class="text-decoration-none">Pacientes</a>.
-    </div>
-  </div>
-
-  <!-- Seleccionar Especialidad -->
-  <div class="mb-3">
-    <label class="form-label">Especialidad Médica</label>
-    <select class="form-select" [(ngModel)]="especialidadSeleccionada" name="especialidad" (change)="onEspecialidadChange()" required>
-      <option value="" disabled selected>Seleccione una especialidad</option>
-      @for (esp of listaEspecialidades; track esp) {
-        <option [value]="esp">{{ esp }}</option>
-      }
-    </select>
-  </div>
-
-  <!-- Tipo de Consulta (Filtrado según la especialidad elegida) -->
-  <div class="mb-3">
-    <label class="form-label">Tipo de Consulta / Procedimiento</label>
-    <select class="form-select" [(ngModel)]="tipoConsultaSeleccionado" name="tipoConsulta" (change)="onTipoConsultaChange()" [disabled]="!especialidadSeleccionada" required>
-      <option value="" disabled selected>
-        {{ especialidadSeleccionada ? 'Seleccione el tipo de consulta' : 'Primero seleccione una especialidad' }}
-      </option>
-      @for (tipo of listaTiposConsulta; track tipo) {
-        <option [value]="tipo">{{ tipo }} ({{ tiposConsultaDisponibles[tipo] }} min)</option>
-      }
-    </select>
-  </div>
-
-  <!-- Asignar Médico (Dispara verificarDisponibilidad) -->
-  <div class="mb-3">
-    <label class="form-label">Asignar Médico</label>
-    <select class="form-select" [(ngModel)]="nuevaCita.idMedico" name="idMedico" (change)="verificarDisponibilidad()" [disabled]="!especialidadSeleccionada" required>
-      <option value="" disabled selected>
-        {{ especialidadSeleccionada ? 'Seleccione un médico disponible' : 'Primero seleccione una especialidad' }}
-      </option>
-      @for (medico of medicosFiltrados; track medico.id) {
-        <option [value]="medico.id || medico.idMedico">
-          Dr(a). {{ medico.nombre }}
-        </option>
-      }
-    </select>
-  </div>
-  
+  <!-- Fila 1: Paciente y Especialidad -->
   <div class="row">
-    <!-- Fecha (Dispara verificarDisponibilidad) -->
-    <div class="col-md-4 mb-3">
-      <label class="form-label">Fecha</label>
-      <input type="date" class="form-control" [(ngModel)]="nuevaCita.fecha" name="fecha" (change)="verificarDisponibilidad()" [min]="fechaMinima" required>
+    <div class="col-md-6 mb-3">
+      <label class="form-label fw-semibold">Paciente (DNI - Nombres y Apellidos)</label>
+      <select class="form-select" [(ngModel)]="nuevaCita.idPaciente" name="idPaciente" required>
+        <option value="" disabled selected>Seleccione un paciente registrado...</option>
+        @for (p of todosLosPacientes(); track p.idPaciente) {
+          <option [value]="p.idPaciente">
+            [{{ p.numDocumento }}] - {{ p.nombres }} {{ p.apellidoPaterno }} {{ p.apellidoMaterno || '' }}
+          </option>
+        }
+      </select>
+      <div class="form-text text-muted">
+        Si es nuevo, regístralo primero en <a routerLink="/dashboard/pacientes" class="text-decoration-none">Pacientes</a>.
+      </div>
     </div>
-    
-    <!-- Duración Automática -->
+
+    <div class="col-md-6 mb-3">
+      <label class="form-label fw-semibold">Especialidad Médica</label>
+      <select class="form-select" [(ngModel)]="especialidadSeleccionada" name="especialidad" (change)="onEspecialidadChange()" required>
+        <option value="" disabled selected>Seleccione una especialidad</option>
+        @for (esp of listaEspecialidades; track esp) {
+          <option [value]="esp">{{ esp }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Fila 2: Tipo de Consulta y Médico -->
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label fw-semibold">Tipo de Consulta / Procedimiento</label>
+      <select class="form-select" [(ngModel)]="tipoConsultaSeleccionado" name="tipoConsulta" (change)="onTipoConsultaChange()" [disabled]="!especialidadSeleccionada" required>
+        <option value="" disabled selected>
+          {{ especialidadSeleccionada ? 'Seleccione el tipo de consulta' : 'Primero seleccione una especialidad' }}
+        </option>
+        @for (tipo of listaTiposConsulta; track tipo) {
+          <option [value]="tipo">{{ tipo }} ({{ tiposConsultaDisponibles[tipo] }} min)</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <label class="form-label fw-semibold">Asignar Médico</label>
+      <select class="form-select" [(ngModel)]="nuevaCita.idMedico" name="idMedico" (change)="onMedicoChange()" [disabled]="!especialidadSeleccionada" required>
+        <option value="" disabled selected>
+          {{ especialidadSeleccionada ? 'Seleccione un médico' : 'Primero seleccione una especialidad' }}
+        </option>
+        @for (medico of medicosFiltrados; track medico.id) {
+          <option [value]="medico.id || medico.idMedico">
+            Dr(a). {{ medico.nombre }}
+          </option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Fila 3: Fecha, Hora Manual (sincronizada con la tabla) y Duración -->
+  <div class="row">
     <div class="col-md-4 mb-3">
-      <label class="form-label">Duración (Automática)</label>
-      <input 
-        type="text" 
-        class="form-control bg-light text-muted" 
-        [value]="nuevaCita.duracionMinutos + ' minutos'" 
+      <label class="form-label fw-semibold">Fecha (o clic en la tabla)</label>
+      <input
+        type="date"
+        class="form-control"
+        [ngModel]="nuevaCita.fecha"
+        name="fecha"
+        [min]="fechaMinima"
+        (ngModelChange)="onFechaManualChange($event)"
+        required>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <label class="form-label fw-semibold">Hora de Inicio (Ej. 13:15)</label>
+      <input
+        type="time"
+        class="form-control"
+        step="300"
+        [ngModel]="nuevaCita.hora"
+        name="hora"
+        (ngModelChange)="onHoraManualChange($event)"
+        required>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <label class="form-label fw-semibold">Duración (Automática)</label>
+      <input
+        type="text"
+        class="form-control bg-light text-muted"
+        [value]="nuevaCita.duracionMinutos + ' minutos'"
         disabled>
     </div>
   </div>
 
-  <!-- Grilla Dinámica de Cupos Seguros (Motor Backend) -->
-  <div class="col-12 mb-4">
-    <label class="form-label fw-bold">Cupos Disponibles de Atención</label>
-    
-    @if (!nuevaCita.idMedico || !nuevaCita.fecha || !tipoConsultaSeleccionado) {
-      <div class="alert alert-secondary py-2 text-center text-muted border">
-        Seleccione especialidad, tipo de consulta, médico y fecha para visualizar los cupos libres.
-      </div>
-    } @else if (cargandoHoras) {
-      <div class="alert border py-3 text-center text-primary">
-        <div class="spinner-border spinner-border-sm me-2"></div> Analizando agenda del médico...
+  <!-- SECCIÓN HORARIO SEMANAL ESTILO INTRALU -->
+  <div class="mt-2 mb-4">
+    @if (!nuevaCita.idMedico) {
+      <div class="alert alert-secondary text-center py-4 border">
+        <i class="bi bi-calendar3 fs-4 d-block mb-1"></i>
+        Selecciona una especialidad y un médico para visualizar su horario semanal de atención.
       </div>
     } @else {
-      
-      <div class="d-flex flex-wrap gap-2 p-3 border rounded bg-white">
-        @for (hora of cuposDisponibles; track hora) {
-          <button type="button" 
-            class="btn btn-sm shadow-sm transition-all"
-            style="width: 85px;"
-            [ngClass]="{
-              'btn-success text-white border-success fw-bold': nuevaCita.hora === hora,
-              'btn-outline-primary': nuevaCita.hora !== hora
-            }"
-            (click)="seleccionarHora(hora)">
-            
-            <i class="bi bi-clock me-1"></i> {{ hora }}
+      <!-- Barra superior de navegación (Semanas / Meses) + Leyenda -->
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-2 px-3 bg-light border rounded-top">
+        <div class="d-flex align-items-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-dark" (click)="cambiarSemana(-1)">
+            &#9664; Semana ant.
           </button>
-        }
-        
-        @if (cuposDisponibles.length === 0) {
-          <div class="w-100 text-center text-danger small py-3">
-            <i class="bi bi-calendar-x fs-4 d-block mb-1"></i>
-            El doctor no atiende en la fecha seleccionada o ya tiene la agenda totalmente llena.
+
+          <span class="fw-bold text-dark px-2">{{ tituloRangoSemana }}</span>
+
+          <button type="button" class="btn btn-sm btn-outline-dark" (click)="cambiarSemana(1)">
+            Semana sig. &#9654;
+          </button>
+
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="irAHoy()">
+            Hoy
+          </button>
+
+          <input
+            type="month"
+            class="form-control form-control-sm"
+            style="width: 165px;"
+            [ngModel]="mesSelector"
+            name="mesSelector"
+            (ngModelChange)="onMesChange($event)">
+        </div>
+
+        <!-- Leyenda visual -->
+        <div class="d-flex align-items-center gap-3 small">
+          <span><span class="leyenda-box bg-primary"></span> Ocupado</span>
+          <span><span class="leyenda-box bg-white border"></span> Libre (Clic)</span>
+          <span><span class="leyenda-box bg-success"></span> Seleccionado</span>
+          <span><span class="leyenda-box bg-fuera-turno"></span> Sin turno</span>
+        </div>
+      </div>
+
+      <!-- Aviso si el doctor no tiene horarios registrados -->
+      @if (!cargandoAgenda() && turnosMedico().length === 0) {
+        <div class="alert alert-warning mb-0 rounded-0 border-top-0 py-2 small text-center">
+          Este médico aún no tiene turnos configurados en <strong>horario_medico</strong>.
+        </div>
+      }
+
+      <!-- Contenedor de la tabla semanal -->
+      <div class="horario-wrapper border border-top-0 rounded-bottom position-relative">
+        @if (cargandoAgenda()) {
+          <div class="agenda-loading-badge">
+            <span class="spinner-border spinner-border-sm me-1"></span> Actualizando semana...
           </div>
         }
+
+        <!-- Cabecera de días (LUNES a DOMINGO) -->
+        <div class="horario-header">
+          <div class="col-hora-header">HORA</div>
+          @for (dia of diasSemana; track dia.fechaISO) {
+            <div class="col-dia-header" [class.dia-seleccionado-header]="nuevaCita.fecha === dia.fechaISO">
+              <div>{{ dia.nombreCorto }}</div>
+              <small class="fw-normal opacity-75">{{ dia.numeroDia }}</small>
+            </div>
+          }
+        </div>
+
+        <!-- Cuerpo de la grilla -->
+        <div class="horario-body" [style.height.px]="alturaTotalGrilla">
+          <!-- Columna izquierda de horas -->
+          <div class="col-horas" [style.height.px]="alturaTotalGrilla">
+            @for (etq of horasEtiquetas; track etq.hora) {
+              <div
+                class="hora-label"
+                [class.hora-en-punto]="etq.esHoraEnPunto"
+                [style.top.px]="etq.minutosDesdeInicio * pxPorMinuto">
+                {{ etq.hora }}
+              </div>
+            }
+          </div>
+
+          <!-- 7 Columnas de Lunes a Domingo -->
+          @for (dia of diasSemana; track dia.fechaISO) {
+            <div class="col-dia" [style.height.px]="alturaTotalGrilla">
+              <!-- Líneas horizontales guía cada 30 min -->
+              @for (etq of horasEtiquetas; track etq.hora) {
+                <div
+                  class="linea-hora"
+                  [class.linea-en-punto]="etq.esHoraEnPunto"
+                  [style.top.px]="etq.minutosDesdeInicio * pxPorMinuto">
+                </div>
+              }
+
+              <!-- Franjas blancas de turno laboral del médico -->
+              @for (turno of getTurnosDeDia(dia.diaSemana); track turno.horaInicio) {
+                <div
+                  class="franja-turno-activo"
+                  [style.top.px]="calcularTopPx(turno.horaInicio)"
+                  [style.height.px]="calcularAlturaTurnoPx(turno.horaInicio, turno.horaFin)">
+                </div>
+              }
+
+              <!-- Celdas interactivas cada 5 min dentro del turno -->
+              <div (mouseleave)="onSlotLeave()">
+                @for (slot of slotsDisponiblesPorDia()[dia.fechaISO] || []; track slot.hora) {
+                  <div
+                    class="slot-disponible"
+                    [style.top.px]="slot.minutosDesdeInicio * pxPorMinuto"
+                    [style.height.px]="5 * pxPorMinuto"
+                    (mouseenter)="onSlotHover(dia, slot.hora)"
+                    (click)="seleccionarBloque(dia, slot.hora)">
+                  </div>
+                }
+              </div>
+
+              <!-- Vista previa del bloque completo al pasar el cursor -->
+              @if (slotHover(); as hover) {
+                @if (hover.fechaISO === dia.fechaISO) {
+                  <div
+                    class="bloque-preview"
+                    [style.top.px]="calcularTopPx(hover.hora)"
+                    [style.height.px]="calcularAlturaPx(nuevaCita.duracionMinutos)">
+                    <div class="bloque-titulo">{{ hover.hora }} - {{ calcularHoraFin(hover.hora, nuevaCita.duracionMinutos) }}</div>
+                    <div class="bloque-subtitulo">Clic para elegir ({{ nuevaCita.duracionMinutos }} min)</div>
+                  </div>
+                }
+              }
+
+              <!-- Bloques AZULES de citas ya ocupadas -->
+              @for (cita of getCitasDeFecha(dia.fechaISO); track cita.id) {
+                <div
+                  class="bloque-ocupado"
+                  [style.top.px]="calcularTopPx(cita.horaInicio)"
+                  [style.height.px]="calcularAlturaPx(cita.duracionMinutos)"
+                  [title]="cita.horaInicio + ' - ' + calcularHoraFin(cita.horaInicio, cita.duracionMinutos) + ' | ' + cita.paciente">
+                  <div class="bloque-titulo">{{ cita.horaInicio }} - {{ calcularHoraFin(cita.horaInicio, cita.duracionMinutos) }}</div>
+                  <div class="bloque-subtitulo">{{ cita.paciente }}</div>
+                  <div class="bloque-detalle">{{ cita.tipoConsulta }}</div>
+                </div>
+              }
+
+              <!-- Bloque VERDE de la nueva cita seleccionada -->
+              @if (nuevaCita.fecha === dia.fechaISO && nuevaCita.hora) {
+                <div
+                  class="bloque-seleccionado"
+                  [style.top.px]="calcularTopPx(nuevaCita.hora)"
+                  [style.height.px]="calcularAlturaPx(nuevaCita.duracionMinutos)">
+                  <div class="bloque-titulo">NUEVA CITA</div>
+                  <div class="bloque-subtitulo">{{ nuevaCita.hora }} - {{ calcularHoraFin(nuevaCita.hora, nuevaCita.duracionMinutos) }}</div>
+                </div>
+              }
+            </div>
+          }
+        </div>
       </div>
     }
   </div>
 
-  <!-- Botón de Confirmación de Cita (Ahora dentro del formulario principal) -->
-  <div class="col-12 mt-4 text-end">
-    <button 
-      type="submit" 
-      class="btn btn-primary btn-lg px-5 shadow"
+  <!-- Resumen de selección y Botón de Confirmación -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3 pt-3 border-top">
+    <div>
+      @if (nuevaCita.fecha && nuevaCita.hora) {
+        <span class="badge bg-success fs-6 px-3 py-2">
+          Horario elegido: {{ nuevaCita.fecha }} a las {{ nuevaCita.hora }} ({{ nuevaCita.duracionMinutos }} min)
+        </span>
+      } @else {
+        <span class="text-muted small">
+          Elige fecha y hora arriba o haz clic directamente en un espacio blanco del horario.
+        </span>
+      }
+    </div>
+
+    <button
+      type="submit"
+      class="btn btn-primary btn-lg px-4 shadow-sm"
       [disabled]="!nuevaCita.idPaciente || !nuevaCita.idMedico || !nuevaCita.fecha || !nuevaCita.hora">
-      <i class="bi bi-check-circle-fill me-2"></i> Confirmar y Registrar Cita
+      Confirmar y Registrar Cita
     </button>
   </div>
 </form>
