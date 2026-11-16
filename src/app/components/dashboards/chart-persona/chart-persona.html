@@ -1,23 +1,33 @@
 <div class="container-fluid py-4">
   <div class="row g-4">
-    <!-- Gráfico 1: Usuarios por Rol (Donut) -->
+    <!-- Gráfico 1: Demanda por Especialidad Médica (Radar) -->
     <div class="col-lg-4 col-md-6 d-flex justify-content-center">
       <div class="chart-wrapper w-100 p-3 bg-white rounded shadow-sm">
         <apx-chart
-          [title]="chartOptionsDonut.title!"
-          [series]="chartOptionsDonut.series!"
-          [chart]="chartOptionsDonut.chart!"
-          [labels]="chartOptionsDonut.labels!"
-          [colors]="chartOptionsDonut.colors!"
-          [legend]="chartOptionsDonut.legend!">
+          [title]="chartOptionsRadar.title!"
+          [series]="chartOptionsRadar.series!"
+          [chart]="chartOptionsRadar.chart!"
+          [xaxis]="chartOptionsRadar.xaxis!"
+          [yaxis]="chartOptionsRadar.yaxis!"
+          [stroke]="chartOptionsRadar.stroke!"
+          [fill]="chartOptionsRadar.fill!"
+          [markers]="chartOptionsRadar.markers!"
+          [colors]="chartOptionsRadar.colors!">
         </apx-chart>
       </div>
     </div>
 
-    <!-- Gráfico 2: Citas por Médico (Columnas Verticales) -->
+    <!-- Gráfico 2: Carga de Citas por Médico (Treemap) -->
     <div class="col-lg-4 col-md-6 d-flex justify-content-center">
       <div class="chart-wrapper w-100 p-3 bg-white rounded shadow-sm">
-        <app-chart-cita></app-chart-cita>
+        <apx-chart
+          [title]="chartOptionsTreemap.title!"
+          [series]="chartOptionsTreemap.series!"
+          [chart]="chartOptionsTreemap.chart!"
+          [plotOptions]="chartOptionsTreemap.plotOptions!"
+          [dataLabels]="chartOptionsTreemap.dataLabels!"
+          [colors]="chartOptionsTreemap.colors!">
+        </apx-chart>
       </div>
     </div>
 

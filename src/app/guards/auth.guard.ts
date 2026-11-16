@@ -7,7 +7,6 @@ export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   const token = storageService.getItem('user_token');
-  console.log('AuthGuard Token:', token);
   if (token) {
     return true; // Usuario autenticado, se permite el acceso
   }

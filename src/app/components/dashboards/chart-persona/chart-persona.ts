@@ -1,29 +1,42 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { 
-  NgApexchartsModule, 
-  ApexChart, 
-  ApexAxisChartSeries, 
-  ApexTitleSubtitle, 
-  ApexLegend, 
-  ApexXAxis, 
-  ApexStroke, 
-  ApexDataLabels 
+import {
+  NgApexchartsModule,
+  ApexChart,
+  ApexAxisChartSeries,
+  ApexTitleSubtitle,
+  ApexXAxis,
+  ApexYAxis,
+  ApexStroke,
+  ApexDataLabels,
+  ApexPlotOptions,
+  ApexFill,
+  ApexMarkers
 } from 'ng-apexcharts';
-import { PersonaService } from '../../../services/persona.service';
-import { CitaService } from '../../../services/cita.service'; // <-- Importado para el 3er gráfico
-import { ChartCitaComponent } from '../chart-cita/chart-cita';
+import { CitaService } from '../../../services/cita.service';
+import { NCitasXMedico } from '../../../model/api/response/ncitas-xmedico';
 
-export type ChartOptionsDonut = {
-  series: number[];
+export type ChartOptionsRadar = {
+  series: ApexAxisChartSeries;
   chart: ApexChart;
   title: ApexTitleSubtitle;
-  labels: string[];
+  xaxis: ApexXAxis;
+  yaxis: ApexYAxis;
+  stroke: ApexStroke;
+  fill: ApexFill;
+  markers: ApexMarkers;
   colors: string[];
-  legend: ApexLegend;
 };
 
-// Tipo para la configuración del Gráfico de Área
+export type ChartOptionsTreemap = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  title: ApexTitleSubtitle;
+  plotOptions: ApexPlotOptions;
+  dataLabels: ApexDataLabels;
+  colors: string[];
+};
+
 export type ChartOptionsArea = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
@@ -37,89 +50,128 @@ export type ChartOptionsArea = {
 @Component({
   selector: 'app-chart-persona',
   standalone: true,
-  imports: [CommonModule, NgApexchartsModule, ChartCitaComponent],
+  imports: [CommonModule, NgApexchartsModule],
   templateUrl: './chart-persona.html',
   styleUrl: './chart-persona.css'
 })
 export class ChartPersona implements OnInit {
-  private personaService = inject(PersonaService);
-  private citaService = inject(CitaService); // <-- Inyectado
+  private citaService = inject(CitaService);
   private cdr = inject(ChangeDetectorRef);
 
-  public chartOptionsDonut: Partial<ChartOptionsDonut> = {
-    series: [],
-    chart: { type: 'donut', height: 350 },
-    title: { text: 'Proporción de Usuarios por Rol', align: 'center' },
-    labels: [],
-    colors: []
+  // Gráfico 1: Radar (Demanda de Citas por Especialidad Médica)
+  public chartOptionsRadar: Partial<ChartOptionsRadar> = {
+    series: [{ name: 'Citas', data: [] }],
+    chart: { type: 'radar', height: 360, toolbar: { show: false } },
+    title: { text: 'Demanda por Especialidad Médica', align: 'center' },
+    xaxis: { categories: [] },
+    yaxis: { show: false },
+    stroke: { width: 2 },
+    fill: { opacity: 0.25 },
+    markers: { size: 4 },
+    colors: ['#008FFB']
   };
 
-  // Configuración inicial del 3er Gráfico (Área)
+  // Gráfico 2: Treemap (Carga de Citas por Médico)
+  public chartOptionsTreemap: Partial<ChartOptionsTreemap> = {
+    series: [{ name: 'Citas', data: [] }],
+    chart: { type: 'treemap', height: 360, toolbar: { show: false } },
+    title: { text: 'Carga de Citas por Médico', align: 'center' },
+    plotOptions: {
+      treemap: {
+        distributed: true,
+        enableShades: false
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      style: { fontSize: '12px', fontWeight: 'bold' },
+      formatter: (text: string, op: any) => `${text}: ${op.value}`
+    },
+    colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#3F51B5', '#546E7A', '#D4526E']
+  };
+
+  // Gráfico 3: Área (Tendencia de Citas por Fecha con barra de zoom)
   public chartOptionsArea: Partial<ChartOptionsArea> = {
     series: [],
-    chart: { type: 'area', height: 350 },
-    title: { text: 'Tendencia de Citas Registradas por Fecha', align: 'center' },
+    chart: { type: 'area', height: 360, toolbar: { show: true } },
+    title: { text: 'Tendencia de Citas por Fecha', align: 'left', margin: 15 },
     xaxis: { categories: [] },
-    stroke: { curve: 'smooth' },
+    stroke: { curve: 'smooth', width: 2 },
     dataLabels: { enabled: false },
-    colors: ['#00E396']
+    colors: ['#008FFB']
   };
 
   ngOnInit(): void {
-    this.getNUsuariosXRolCharts();
-    this.getCitasPorFechaCharts(); // <-- Llamada para obtener los datos del 3er gráfico
+    this.getCitasPorEspecialidadCharts();
+    this.getNCitasXMedicoCharts();
+    this.getCitasPorFechaCharts();
   }
 
-  private getRandomColors(count: number): string[] {
-    const palette = ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#3F51B5'];
-    return palette.slice(0, count);
-  }
+  // 1. Agrupa las citas reales por la especialidad del médico asignado
+  getCitasPorEspecialidadCharts(): void {
+    this.citaService.listarCitas().subscribe({
+      next: (citas: any[]) => {
+        if (!citas || citas.length === 0) return;
 
-  getNUsuariosXRolCharts(): void {
-    this.personaService.getNUsuariosXRol().subscribe({
-      next: (data) => {
-        console.log('Respuesta backend NUsuariosXRol:', data);
+        const conteo: { [esp: string]: number } = {};
+        for (const c of citas) {
+          if (c.estado && c.estado.toLowerCase() === 'cancelada') continue;
+          const esp = c.medico?.especialidad || 'General';
+          conteo[esp] = (conteo[esp] || 0) + 1;
+        }
 
-        if (!data || data.length === 0) return;
+        const especialidades = Object.keys(conteo);
+        const cantidades = Object.values(conteo);
 
-        const descripciones = data.map(d => d.descripcion);
-        const cantidades = data.map(d => d.cantidad);
-        const colores = this.getRandomColors(data.length);
-
-        this.chartOptionsDonut = {
-          series: cantidades,
-          chart: { type: 'donut', height: 350 },
-          title: { text: 'Proporción de Usuarios por Rol', align: 'center' },
-          labels: descripciones,
-          colors: colores,
-          legend: { position: 'bottom' }
+        this.chartOptionsRadar = {
+          ...this.chartOptionsRadar,
+          series: [{ name: 'Citas registradas', data: cantidades }],
+          xaxis: { categories: especialidades }
         };
 
-        this.cdr.detectChanges(); // Forzar actualización de plantilla
+        this.cdr.detectChanges();
       },
-      error: (err) => console.error('Error al cargar usuarios por rol:', err)
+      error: (err) => console.error('Error al cargar citas por especialidad:', err)
     });
   }
 
-  // Método para poblar el 3er Gráfico de Área
+  // 2. Carga de citas por médico usando NCitasXMedico (nombreMedico, cantidadCitas)
+  getNCitasXMedicoCharts(): void {
+    this.citaService.getNCitasXMedico().subscribe({
+      next: (data: NCitasXMedico[]) => {
+        if (!data || data.length === 0) return;
+
+        const puntosTreemap = data
+          .filter(d => d.cantidadCitas > 0)
+          .map(d => ({
+            x: d.nombreMedico,
+            y: d.cantidadCitas
+          }));
+
+        this.chartOptionsTreemap = {
+          ...this.chartOptionsTreemap,
+          series: [{ name: 'Citas', data: puntosTreemap }]
+        };
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error al cargar citas por médico:', err)
+    });
+  }
+
+  // 3. Tendencia histórica de citas por fecha (Gráfico de Área)
   getCitasPorFechaCharts(): void {
     this.citaService.getCitasPorFecha().subscribe({
       next: (data) => {
-        console.log('Respuesta backend CitasPorFecha:', data);
-
         if (!data || data.length === 0) return;
 
         const fechas = data.map(d => d.fecha);
         const cantidades = data.map(d => d.cantidad);
 
         this.chartOptionsArea = {
+          ...this.chartOptionsArea,
           series: [{ name: 'Citas', data: cantidades }],
-          chart: { type: 'area', height: 350 },
-          title: { text: 'Tendencia de Citas Registradas por Fecha', align: 'center' },
-          xaxis: { categories: fechas },
-          stroke: { curve: 'smooth' },
-          dataLabels: { enabled: false },
-          colors: ['#008FFB']
+          xaxis: { categories: fechas }
         };
 
         this.cdr.detectChanges();
