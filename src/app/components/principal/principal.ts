@@ -3,11 +3,12 @@ import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/rou
 import { AuthService } from '../../services/auth.service';
 import { Modulo } from '../../model/modulo';
 import { SessionService } from '../../services/session.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-principal',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './principal.html',
   styleUrl: './principal.css'
 })

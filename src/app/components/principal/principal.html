@@ -1,27 +1,53 @@
-<div class="d-flex" id="wrapper">
-  <!-- Sidebar / Menú Lateral -->
-  <div class="bg-dark text-white p-3 min-vh-100" style="width: 250px;">
-    <h4 class="text-center py-3">SIGCLIN</h4>
-    <hr>
+<div class="d-flex min-vh-100" id="wrapper">
+  <!-- Sidebar / Menú Lateral Institucional -->
+  <aside class="sigclin-sidebar d-flex flex-column justify-content-between p-3">
+    <div>
+      <!-- Marca SIGCLIN -->
+      <div class="sidebar-brand d-flex align-items-center gap-2 px-2 py-3 mb-3">
+        <div class="brand-icon d-flex align-items-center justify-content-center">
+          <i class="bi bi-hospital-fill"></i>
+        </div>
+        <div>
+          <div class="brand-title">SIGCLIN</div>
+          <div class="brand-subtitle">Gestión Clínica</div>
+        </div>
+      </div>
 
-    <ul class="nav nav-pills flex-column mb-auto">
-      @for (mod of modulos(); track mod.idMod) {
-        <li class="nav-item">
-          <a [routerLink]="mod.url" routerLinkActive="active" class="nav-link text-white">
-            <i class="bi bi-folder me-2"></i> {{ mod.descripcion }}
-          </a>
-        </li>
-      }
-    </ul>
+      <!-- Navegación de Módulos -->
+      <ul class="nav flex-column gap-1">
+        @for (mod of modulos(); track mod.idMod) {
+          <li class="nav-item">
+            <a [routerLink]="mod.url" routerLinkActive="active" class="nav-link sigclin-nav-link d-flex align-items-center gap-2">
+              <i class="bi" [ngClass]="{
+                'bi-grid-1x2-fill': mod.descripcion.toLowerCase().includes('inicio'),
+                'bi-calendar2-check-fill': mod.descripcion.toLowerCase().includes('cita') && !mod.descripcion.toLowerCase().includes('calendario'),
+                'bi-heart-pulse-fill': mod.descripcion.toLowerCase().includes('médico') || mod.descripcion.toLowerCase().includes('medico'),
+                'bi-people-fill': mod.descripcion.toLowerCase().includes('paciente'),
+                'bi-shield-lock-fill': mod.descripcion.toLowerCase().includes('rol'),
+                'bi-box-seam-fill': mod.descripcion.toLowerCase().includes('módulo') || mod.descripcion.toLowerCase().includes('modulo'),
+                'bi-person-badge-fill': mod.descripcion.toLowerCase().includes('usuario'),
+                'bi-file-earmark-medical-fill': mod.descripcion.toLowerCase().includes('historia'),
+                'bi-capsule': mod.descripcion.toLowerCase().includes('receta'),
+                'bi-calendar2-week-fill': mod.descripcion.toLowerCase().includes('agenda') || mod.descripcion.toLowerCase().includes('calendario')
+              }"></i>
+              <span>{{ mod.descripcion }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
 
-    <hr>
-    <button (click)="cerrarSesion()" class="btn btn-outline-danger w-100">
-      <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
-    </button>
-  </div>
+    <!-- Botón Cerrar Sesión -->
+    <div class="pt-3 border-top border-white border-opacity-10">
+      <button (click)="cerrarSesion()" class="btn btn-logout-sidebar w-100 d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-box-arrow-left"></i>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
 
   <!-- Contenido Principal Dinámico -->
-  <div class="flex-grow-1 p-4 bg-light">
+  <main class="flex-grow-1 p-4 sigclin-main-content">
     <router-outlet></router-outlet>
-  </div>
+  </main>
 </div>
