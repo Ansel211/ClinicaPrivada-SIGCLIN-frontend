@@ -42,7 +42,8 @@
             <th>Nro</th>
             <th>Paciente</th>
             <th>Médico Asignado</th>
-            <th>Fecha y Hora de Inicio</th>
+            <th>Fecha</th>
+            <th>Hora de Inicio</th>
             <th>Hora de Fin</th>
             <th>Estado</th>
           </tr>
@@ -52,7 +53,8 @@
             <td class="fw-bold">{{ i + 1 }}</td>
             <td>{{ cita.nombrePaciente }}</td>
             <td><span class="badge bg-info text-dark">{{ cita.nombreMedico }}</span></td>
-            <td>{{ cita.start | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ cita.start | date:'dd/MM/yyyy' }}</td>
+            <td>{{ cita.start | date:'HH:mm' }}</td>
             <td>{{ cita.end | date:'HH:mm' }}</td>
             <td>
               <span class="badge" [ngClass]="{
@@ -65,7 +67,7 @@
             </td>
           </tr>
           <tr *ngIf="citas().length === 0">
-            <td colspan="6" class="text-center py-4 text-muted">
+            <td colspan="7" class="text-center py-4 text-muted">
               No se encontraron citas programadas en este rango o filtro.
             </td>
           </tr>
