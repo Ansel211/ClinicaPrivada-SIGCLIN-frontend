@@ -14,6 +14,7 @@ import {
   ApexMarkers
 } from 'ng-apexcharts';
 import { CitaService } from '../../../services/cita.service';
+import { SessionService } from '../../../services/session.service';
 import { NCitasXMedico } from '../../../model/api/response/ncitas-xmedico';
 
 export type ChartOptionsRadar = {
@@ -56,7 +57,19 @@ export type ChartOptionsArea = {
 })
 export class ChartPersona implements OnInit {
   private citaService = inject(CitaService);
+  private sessionService = inject(SessionService);
   private cdr = inject(ChangeDetectorRef);
+
+  // Datos del usuario para el Banner de Bienvenida
+  public nombreUsuario: string = 'Usuario';
+  public rolUsuario: string = 'Personal Clínico';
+  public fechaActual: Date = new Date();
+
+  // Indicadores rápidos (KPIs)
+  public totalCitas: number = 0;
+  public totalMedicosActivos: number = 0;
+  public especialidadTop: string = 'Cargando...';
+  public citasPendientes: number = 0;
 
   // Gráfico 1: Radar (Demanda de Citas por Especialidad Médica)
   public chartOptionsRadar: Partial<ChartOptionsRadar> = {
@@ -102,16 +115,38 @@ export class ChartPersona implements OnInit {
   };
 
   ngOnInit(): void {
+    this.cargarDatosSesion();
     this.getCitasPorEspecialidadCharts();
-    this.getNCitasXMedicoCharts();
+    this.getNCitasMedicoCharts();
     this.getCitasPorFechaCharts();
+  }
+
+  private cargarDatosSesion(): void {
+    const sesion = this.sessionService.getInfoSession();
+    if (sesion) {
+      this.nombreUsuario = sesion.names || sesion.email;
+      const rolObj: any = sesion.rol;
+      const codigoRol = typeof rolObj === 'string' ? rolObj : (rolObj?.codigo || rolObj?.descripcion || '');
+      const mapaRoles: Record<string, string> = {
+        ADMIN: 'Administrador del Sistema',
+        MEDICO: 'Médico Especialista',
+        RECEPCION: 'Admisión y Recepción'
+      };
+      this.rolUsuario = mapaRoles[codigoRol] || rolObj?.descripcion || codigoRol || 'Personal Clínico';
+    }
   }
 
   // 1. Agrupa las citas reales por la especialidad del médico asignado
   getCitasPorEspecialidadCharts(): void {
     this.citaService.listarCitas().subscribe({
       next: (citas: any[]) => {
-        if (!citas || citas.length === 0) return;
+        if (!citas || citas.length === 0) {
+          this.especialidadTop = 'Sin registros';
+          return;
+        }
+
+        this.totalCitas = citas.length;
+        this.citasPendientes = citas.filter(c => c.estado?.toLowerCase() === 'pendiente').length;
 
         const conteo: { [esp: string]: number } = {};
         for (const c of citas) {
@@ -122,6 +157,13 @@ export class ChartPersona implements OnInit {
 
         const especialidades = Object.keys(conteo);
         const cantidades = Object.values(conteo);
+
+        if (especialidades.length > 0) {
+          const maxIdx = cantidades.indexOf(Math.max(...cantidades));
+          this.especialidadTop = especialidades[maxIdx];
+        } else {
+          this.especialidadTop = 'Sin registros';
+        }
 
         this.chartOptionsRadar = {
           ...this.chartOptionsRadar,
@@ -136,7 +178,7 @@ export class ChartPersona implements OnInit {
   }
 
   // 2. Carga de citas por médico usando NCitasXMedico (nombreMedico, cantidadCitas)
-  getNCitasXMedicoCharts(): void {
+  getNCitasMedicoCharts(): void {
     this.citaService.getNCitasXMedico().subscribe({
       next: (data: NCitasXMedico[]) => {
         if (!data || data.length === 0) return;
@@ -147,6 +189,8 @@ export class ChartPersona implements OnInit {
             x: d.nombreMedico,
             y: d.cantidadCitas
           }));
+
+        this.totalMedicosActivos = puntosTreemap.length;
 
         this.chartOptionsTreemap = {
           ...this.chartOptionsTreemap,
