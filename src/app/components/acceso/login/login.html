@@ -33,48 +33,67 @@
 
           <div class="mb-3">
             <label class="form-label">Correo Electrónico</label>
-            <input 
-              type="email" 
-              class="form-control" 
-              [(ngModel)]="credentials.email" 
-              name="email" 
-              placeholder="ejemplo@sigclin.com" 
-              required 
-              #emailInput="ngModel">
-           <div *ngIf="emailInput.invalid && emailInput.touched" class="text-danger small mt-1">
-             Ingrese un correo válido.
-           </div>
+            <input
+              type="email"
+              class="form-control"
+              [(ngModel)]="credentials.email"
+              name="email"
+              placeholder="ejemplo@sigclin.com"
+              minlength="6"
+              maxlength="50"
+              pattern="^[\w.\-+]+@[\w\-]+\.[a-zA-Z]{2,}$"
+              (input)="RG.email($event); credentials.email = $any($event.target).value; limpiarError()"
+              required
+              #emailInput="ngModel"
+            />
+            @if (emailInput.invalid && emailInput.touched) {
+              <div class="text-danger small mt-1">
+                Ingrese un correo electrónico válido (ej. usuario@sigclin.com).
+              </div>
+            }
           </div>
 
           <div class="form-group">
-  <label for="password">Contraseña</label>
-  <div class="input-with-icon" style="position: relative;">
-    <input 
-      [type]="mostrarPassword ? 'text' : 'password'" 
-      id="password" 
-      name="password" 
-      [(ngModel)]="credentials.password" 
-      (input)="limpiarError()"
-      placeholder="Contraseña"
-      required>
-    
-    <button type="button" class="toggle-password-btn" (click)="togglePassword()" tabindex="-1">
-      @if (!mostrarPassword) {
-        <!-- Ojo abierto (mostrar contraseña) -->
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-      } @else {
-        <!-- Ojo tachado (ocultar contraseña) -->
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-          <line x1="1" y1="1" x2="23" y2="23"></line>
-        </svg>
-              }
-      </button>
-    </div>
-  </div>
+            <label for="password">Contraseña</label>
+            <div class="input-with-icon" style="position: relative;">
+              <input
+                [type]="mostrarPassword ? 'text' : 'password'"
+                id="password"
+                name="password"
+                class="form-control"
+                [(ngModel)]="credentials.password"
+                minlength="5"
+                maxlength="30"
+                pattern="^\S+$"
+                (input)="RG.password($event); credentials.password = $any($event.target).value; limpiarError()"
+                placeholder="Contraseña"
+                required
+                #passwordInput="ngModel"
+              />
+
+              <button type="button" class="toggle-password-btn" (click)="togglePassword()" tabindex="-1">
+                @if (!mostrarPassword) {
+                  <!-- Ojo abierto (mostrar contraseña) -->
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                } @else {
+                  <!-- Ojo tachado (ocultar contraseña) -->
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                }
+              </button>
+            </div>
+
+            @if (passwordInput.invalid && passwordInput.touched) {
+              <div class="text-danger small mt-1">
+                La contraseña debe tener entre 5 y 30 caracteres sin espacios.
+              </div>
+            }
+          </div>
 
           <div class="form-group checkbox-group">
             <input type="checkbox" id="recordar" name="recordar">
@@ -82,7 +101,7 @@
           </div>
 
           <div class="form-options">
-            <button type="submit"  class="purple-btn">Iniciar Sesión</button>
+            <button type="submit" class="purple-btn">Iniciar Sesión</button>
           </div>
 
           <div class="text-center">
@@ -98,7 +117,14 @@
         <form id="recoverForm">
           <div class="form-group">
             <label for="correo-recuperacion">Correo Electrónico</label>
-            <input type="email" id="correo-recuperacion" placeholder="elena.ruiz@clinica.pe" required>
+            <input
+              type="email"
+              id="correo-recuperacion"
+              maxlength="50"
+              (input)="RG.email($event)"
+              placeholder="elena.ruiz@clinica.pe"
+              required
+            />
           </div>
 
           <div class="form-options">
@@ -107,7 +133,14 @@
 
           <div class="form-group" style="margin-top: 20px;">
             <label for="codigo">Código</label>
-            <input type="text" id="codigo" placeholder="Ingrese el código recibido" required>
+            <input
+              type="text"
+              id="codigo"
+              maxlength="6"
+              (input)="RG.number($event)"
+              placeholder="Ingrese el código recibido"
+              required
+            />
           </div>
 
           <div class="text-center">

@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { SessionService } from '../../../services/session.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RegexConstants } from '../../../util/constant';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,7 @@ export class LoginComponent {
   private sessionService = inject(SessionService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
-
+  public RG = RegexConstants;
   vistaActual = 'login';
 
   credentials = {
@@ -57,6 +58,21 @@ export class LoginComponent {
 
     if (!this.credentials.email.trim() || !this.credentials.password.trim()) {
       this.errorMessage = 'Ingrese su correo y contraseña.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const emailRegex = /^[\w.\-+]+@[\w\-]+\.[a-zA-Z]{2,}$/;
+    const passwordRegex = /^\S{5,30}$/;
+
+    if (!emailRegex.test(this.credentials.email)) {
+      this.errorMessage = 'Ingrese un correo electrónico válido.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    if (!passwordRegex.test(this.credentials.password)) {
+      this.errorMessage = 'La contraseña debe tener entre 5 y 30 caracteres sin espacios.';
       this.cdr.detectChanges();
       return;
     }
