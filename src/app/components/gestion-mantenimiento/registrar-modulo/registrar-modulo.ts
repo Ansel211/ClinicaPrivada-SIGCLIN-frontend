@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModuloService, Modulo } from '../../../services/modulo.service'; // Ajusta la ruta a tu servicio
@@ -21,7 +21,7 @@ export class RegistrarModuloComponent implements OnInit {
   mensajeError: string = '';
   public RC = RegexConstants;
 
-  constructor(private moduloService: ModuloService) {}
+  constructor(private moduloService: ModuloService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.obtenerModulos();
@@ -31,6 +31,7 @@ export class RegistrarModuloComponent implements OnInit {
     this.moduloService.listarModulos().subscribe({
       next: (data) => {
         this.modulos = data;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al cargar módulos:', err);
