@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModuloService, Modulo } from '../../../services/modulo.service'; // Ajusta la ruta a tu servicio
+import { RegexConstants, REGEX_PATTERNS } from '../../../util/constant';
 
 @Component({
   selector: 'app-registrar-modulo',
@@ -18,6 +19,7 @@ export class RegistrarModuloComponent implements OnInit {
   };
   mensajeExito: string = '';
   mensajeError: string = '';
+  public RC = RegexConstants;
 
   constructor(private moduloService: ModuloService) {}
 
@@ -44,7 +46,17 @@ export class RegistrarModuloComponent implements OnInit {
       this.mensajeError = 'Por favor, complete todos los campos.';
       return;
     }
+    
+    if (!REGEX_PATTERNS.TEXTO_GENERAL.test(this.nuevoModulo.descripcion.trim())) {
+      this.mensajeError = 'La descripción contiene caracteres no permitidos o es muy corta.';
+      return;
+    }
 
+    if (!REGEX_PATTERNS.URL_RUTA.test(this.nuevoModulo.url.trim())) {
+      this.mensajeError = 'La URL debe empezar con "/" y solo contener letras, números o guiones (ej. /dashboard/doctores).';
+      return;
+    }
+    
     this.moduloService.registrarModulo(this.nuevoModulo).subscribe({
       next: (res) => {
         this.mensajeExito = 'Módulo registrado correctamente.';

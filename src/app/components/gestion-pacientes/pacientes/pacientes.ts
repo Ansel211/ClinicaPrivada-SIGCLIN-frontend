@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { PacienteService } from '../../../services/paciente.service';
 import { ToastService } from '../../../services/toast.service';
+import { RegexConstants, REGEX_PATTERNS } from '../../../util/constant';
 
 @Component({
   selector: 'app-pacientes',
@@ -14,6 +15,7 @@ import { ToastService } from '../../../services/toast.service';
 export class PacientesComponent implements OnInit {
   private pacienteService = inject(PacienteService);
   private toastService = inject(ToastService);
+  public RC = RegexConstants;
 
   listaPacientes = signal<any[]>([]);
 
@@ -120,6 +122,47 @@ export class PacientesComponent implements OnInit {
       this.toastService.show('La fecha de nacimiento no puede ser mayor a la fecha actual', 'danger');
       return;
     }
+
+    const nombres = this.nuevoPaciente.nombres.trim();
+    const apPaterno = this.nuevoPaciente.apellidoPaterno.trim();
+    const apMaterno = this.nuevoPaciente.apellidoMaterno.trim();
+    const dni = this.nuevoPaciente.numDocumento.trim();
+    const telefono = this.nuevoPaciente.telefono?.trim() || '';
+    const direccion = this.nuevoPaciente.direccion?.trim() || '';
+
+    if (
+    !REGEX_PATTERNS.NOMBRE.test(nombres) ||
+    !REGEX_PATTERNS.NOMBRE.test(apPaterno) ||
+    !REGEX_PATTERNS.NOMBRE.test(apMaterno)
+    ) {
+      this.toastService.show('Nombres y apellidos deben tener entre 2 y 80 letras válidas.', 'warning');
+      return;
+    }
+
+    if (!REGEX_PATTERNS.DNI_RUC.test(dni)) {
+      this.toastService.show('El DNI debe tener 8 dígitos numéricos.', 'warning');
+      return;
+    }
+
+    if (telefono && !REGEX_PATTERNS.TELEFONO.test(telefono)) {
+      this.toastService.show('El teléfono debe ser un número válido (ej. 9 dígitos empezando con 9).', 'warning');
+      return;
+    }
+
+    if (direccion && !REGEX_PATTERNS.TEXTO_GENERAL.test(direccion)) {
+      this.toastService.show('La dirección contiene caracteres no permitidos.', 'warning');
+      return;
+    }
+
+    this.nuevoPaciente = {
+      ...this.nuevoPaciente,
+      nombres,
+      apellidoPaterno: apPaterno,
+      apellidoMaterno: apMaterno,
+      numDocumento: dni,
+      telefono,
+      direccion
+    };
 
     if (this.modoEdicion && this.idPacienteEnEdicion) {
       this.pacienteService.actualizarPaciente(this.idPacienteEnEdicion, this.nuevoPaciente).subscribe({

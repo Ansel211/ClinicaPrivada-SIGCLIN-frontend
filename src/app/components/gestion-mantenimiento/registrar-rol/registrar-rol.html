@@ -13,14 +13,14 @@
         <div class="row g-3">
           <div class="col-md-4">
             <label class="form-label font-weight-bold">Código del Rol</label>
-            <input type="text" formControlName="codigo" class="form-control" placeholder="Ej: ADMIN, MED, RECEP">
+            <input type="text" formControlName="codigo" class="form-control" (input)="RC.username($event); rolForm.get('codigo')?.setValue($any($event.target).value.toUpperCase())" placeholder="Ej: ADMIN, MED, RECEP">
             @if (rolForm.get('codigo')?.touched && rolForm.get('codigo')?.invalid) {
               <small class="text-danger">El código es obligatorio.</small>
             }
           </div>
           <div class="col-md-8">
             <label class="form-label font-weight-bold">Descripción</label>
-            <input type="text" formControlName="descripcion" class="form-control" placeholder="Ej: Administrador del sistema">
+            <input type="text" formControlName="descripcion" class="form-control"  (input)="RC.text($event)" placeholder="Ej: Administrador del sistema">
             @if (rolForm.get('descripcion')?.touched && rolForm.get('descripcion')?.invalid) {
               <small class="text-danger">La descripción es obligatoria.</small>
             }

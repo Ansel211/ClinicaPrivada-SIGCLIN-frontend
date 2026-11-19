@@ -40,12 +40,14 @@
         <div class="col-md-6">
           <label class="form-label fw-bold">Diagnóstico Clínico (CIE-10 / Descripción)</label>
           <textarea class="form-control" rows="2" [(ngModel)]="diagnostico"
+          (input)="RC.text($event)"
             placeholder="Ej: Faringoamigdalitis aguda (J02.9)"></textarea>
         </div>
 
         <div class="col-md-6">
           <label class="form-label fw-bold">Indicaciones Generales y Cuidados</label>
           <textarea class="form-control" rows="2" [(ngModel)]="indicacionesGenerales"
+          (input)="RC.text($event)"
             placeholder="Ej: Hidratación abundante, reposo relativo, evitar bebidas heladas..."></textarea>
         </div>
       </div>
@@ -74,11 +76,11 @@
             <tbody>
               @for (item of detalles; track $index) {
                 <tr>
-                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.medicamento" placeholder="Ej: Paracetamol 500mg"></td>
-                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.dosis" placeholder="Ej: 1 tableta"></td>
-                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.frecuencia" placeholder="Ej: Cada 8 horas"></td>
-                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.duracion" placeholder="Ej: Por 3 días"></td>
-                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.indicaciones" placeholder="Vía oral, después de comidas"></td>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.medicamento" (input)="RC.text($event)" placeholder="Ej: Paracetamol 500mg"></td>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.dosis" (input)="RC.text($event)" placeholder="Ej: 1 tableta"></td>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.frecuencia" (input)="RC.text($event)" placeholder="Ej: Cada 8 horas"></td>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.duracion" (input)="RC.text($event)" placeholder="Ej: Por 3 días"></td>
+                  <td><input type="text" class="form-control form-control-sm" [(ngModel)]="item.indicaciones" (input)="RC.text($event)" placeholder="Vía oral, después de comidas"></td>    
                   <td class="text-center">
                     <button type="button" class="btn btn-outline-danger btn-sm" (click)="eliminarMedicamento($index)" [disabled]="detalles.length === 1">
                       <i class="bi bi-trash"></i>

@@ -5,6 +5,7 @@ import { RecetaService } from '../../../services/receta.service';
 import { PacienteService } from '../../../services/paciente.service';
 import { MedicoService, Medico } from '../../../services/medico.service';
 import { ToastService } from '../../../services/toast.service';
+import { RegexConstants, REGEX_PATTERNS } from '../../../util/constant';
 
 interface DetalleRecetaItem {
   medicamento: string;
@@ -26,7 +27,7 @@ export class RecetasComponent implements OnInit {
   private pacienteService = inject(PacienteService);
   private medicoService = inject(MedicoService);
   private toastService = inject(ToastService);
-
+  public RC = RegexConstants;
   listaPacientes = signal<any[]>([]);
   listaMedicos = signal<Medico[]>([]);
   recetasPaciente = signal<any[]>([]);
@@ -94,6 +95,24 @@ export class RecetasComponent implements OnInit {
 
     if (!this.firmaConfirmada) {
       this.toastService.showError('Debe validar y firmar digitalmente la receta antes de emitirla.');
+      return;
+    }
+
+    if (!REGEX_PATTERNS.TEXTO_GENERAL.test(this.diagnostico.trim())) {
+      this.toastService.showError('El diagnóstico clínico debe tener al menos 3 caracteres válidos.');
+      return;
+    }
+
+    if (this.indicacionesGenerales?.trim() && !REGEX_PATTERNS.TEXTO_GENERAL.test(this.indicacionesGenerales.trim())) {
+      this.toastService.showError('Las indicaciones generales contienen caracteres no permitidos.');
+      return;
+    }
+
+    const medicamentoInvalido = detallesValidos.some(
+      d => !REGEX_PATTERNS.TEXTO_GENERAL.test(d.medicamento.trim())
+    );
+    if (medicamentoInvalido) {
+      this.toastService.showError('El nombre de cada medicamento debe tener al menos 3 caracteres válidos.');
       return;
     }
 

@@ -5,6 +5,7 @@ import { RolService } from '../../../services/rol.service';
 import { ToastService } from '../../../services/toast.service';
 import { Rol } from '../../../model/rol';
 import { Modulo, ModuloService } from '../../../services/modulo.service';
+import { RegexConstants, REGEX_PATTERNS } from '../../../util/constant';
 
 @Component({
   selector: 'app-registrar-rol',
@@ -18,7 +19,8 @@ export class RegistrarRolComponent implements OnInit {
   private rolService = inject(RolService);
   private toastService = inject(ToastService);
   private moduloService = inject(ModuloService);
-
+  public RC = RegexConstants;
+  
   roles = signal<Rol[]>([]);
   modulosDisponibles = signal<Modulo[]>([]);
   modulosSeleccionados: Modulo[] = [];
@@ -27,8 +29,8 @@ export class RegistrarRolComponent implements OnInit {
   idRolEnEdicion: number | null = null;
 
   rolForm: FormGroup = this.fb.group({
-    codigo: ['', [Validators.required, Validators.minLength(2)]],
-    descripcion: ['', [Validators.required]]
+    codigo: ['', [Validators.required, Validators.pattern(REGEX_PATTERNS.CODIGO_ROL)]],
+    descripcion: ['', [Validators.required, Validators.pattern(REGEX_PATTERNS.TEXTO_GENERAL)]]
   });
 
   ngOnInit(): void {
@@ -95,6 +97,8 @@ export class RegistrarRolComponent implements OnInit {
 
     const rolPayload: Rol = {
       ...this.rolForm.value,
+      codigo: this.rolForm.value.codigo?.trim().toUpperCase(),
+      descripcion: this.rolForm.value.descripcion?.trim(),
       activo: true,
       modulos: this.modulosSeleccionados
     };

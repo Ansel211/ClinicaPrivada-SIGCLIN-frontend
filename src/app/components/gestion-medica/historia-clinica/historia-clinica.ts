@@ -5,6 +5,7 @@ import { HistoriaClinicaService } from '../../../services/historia-clinica.servi
 import { PacienteService } from '../../../services/paciente.service';
 import { MedicoService, Medico } from '../../../services/medico.service';
 import { ToastService } from '../../../services/toast.service';
+import { RegexConstants, REGEX_PATTERNS } from '../../../util/constant';
 
 @Component({
   selector: 'app-historia-clinica',
@@ -18,6 +19,7 @@ export class HistoriaClinicaComponent implements OnInit {
   private pacienteService = inject(PacienteService);
   private medicoService = inject(MedicoService);
   private toastService = inject(ToastService);
+  public RC = RegexConstants;
 
   listaPacientes = signal<any[]>([]);
   listaMedicos = signal<Medico[]>([]);
@@ -64,6 +66,19 @@ export class HistoriaClinicaComponent implements OnInit {
   guardarConsulta(form: NgForm): void {
     if (form.invalid || !this.pacienteSeleccionadoId || !this.medicoSeleccionadoId) {
       this.toastService.show('Complete todos los campos obligatorios y seleccione paciente y médico.', 'warning');
+      return;
+    }
+
+    const anamnesisLimpia = this.nuevaConsulta.anamnesis.trim();
+    const diagnosticoLimpio = this.nuevaConsulta.diagnostico.trim();
+    const tratamientoLimpio = this.nuevaConsulta.tratamiento.trim();
+
+    if (
+      !REGEX_PATTERNS.TEXTO_GENERAL.test(anamnesisLimpia) ||
+      !REGEX_PATTERNS.TEXTO_GENERAL.test(diagnosticoLimpio) ||
+      !REGEX_PATTERNS.TEXTO_GENERAL.test(tratamientoLimpio)
+    ) {
+      this.toastService.show('Anamnesis, diagnóstico y tratamiento deben tener al menos 3 caracteres válidos.', 'warning');
       return;
     }
 

@@ -127,6 +127,23 @@ export class CitasComponent implements OnInit {
       m => normalizar(m.especialidad) === normalizar(this.especialidadSeleccionada)
     );
   }
+  
+  get medicoSeleccionadoObj(): any {
+    return this.medicosFiltrados.find(
+      m => String(m.id ?? m.idMedico) === String(this.nuevaCita.idMedico)
+    );
+  }
+
+  get medicoNoDisponible(): boolean {
+    const med = this.medicoSeleccionadoObj;
+    if (!med || !med.disponibilidad) return false;
+    return med.disponibilidad.toLowerCase().trim() !== 'disponible';
+  }
+
+  get fechaEsPasada(): boolean {
+    if (!this.nuevaCita.fecha) return false;
+    return this.nuevaCita.fecha < this.fechaMinima;
+  }
 
   get alturaTotalGrilla(): number {
     return (this.horaFinGrilla - this.horaInicioGrilla) * 60 * this.pxPorMinuto;
@@ -234,6 +251,12 @@ export class CitasComponent implements OnInit {
   onFechaManualChange(nuevaFecha: string): void {
     if (!nuevaFecha) return;
     this.nuevaCita.fecha = nuevaFecha;
+
+    if (nuevaFecha < this.fechaMinima) {
+      this.toastService.show('No se permiten fechas pasadas. Selecciona hoy o una fecha futura.', 'warning');
+      return;
+    }
+
     this.irASemanaDeFecha(this.parsearFechaLocal(nuevaFecha));
   }
 
@@ -464,6 +487,27 @@ export class CitasComponent implements OnInit {
       !this.nuevaCita.hora
     ) {
       this.toastService.show('Completa todos los campos y selecciona fecha y hora.', 'warning');
+      return;
+    }
+
+    if (this.fechaEsPasada) {
+      this.toastService.show('No se puede registrar una cita en una fecha pasada.', 'danger');
+      return;
+    }
+
+    if (this.medicoNoDisponible) {
+      this.toastService.show('El médico seleccionado figura como no disponible / ocupado.', 'danger');
+      return;
+    }
+
+    if (this.turnosMedico().length === 0) {
+      this.toastService.show('El médico seleccionado no tiene turnos configurados.', 'danger');
+      return;
+    }
+
+    const diaElegido = this.diasSemana.find(d => d.fechaISO === this.nuevaCita.fecha);
+    if (diaElegido && !this.puedeAgendarEn(diaElegido, this.nuevaCita.hora)) {
+      this.toastService.show('La hora elegida está fuera del turno del médico o se cruza con otra cita.', 'danger');
       return;
     }
 

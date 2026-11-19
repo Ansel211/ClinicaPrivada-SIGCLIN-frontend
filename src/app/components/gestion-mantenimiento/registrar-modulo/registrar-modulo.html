@@ -25,6 +25,7 @@
               class="form-control" 
               [(ngModel)]="nuevoModulo.descripcion" 
               name="descripcion" 
+              (input)="RC.text($event)"
               placeholder="Ej. Gestión de Doctores" 
               required>
           </div>
@@ -36,6 +37,7 @@
               class="form-control" 
               [(ngModel)]="nuevoModulo.url" 
               name="url" 
+              (input)="RC.routeUrl($event)"
               placeholder="Ej. /dashboard/doctores" 
               required>
           </div>

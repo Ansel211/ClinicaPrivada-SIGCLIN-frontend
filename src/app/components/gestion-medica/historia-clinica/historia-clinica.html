@@ -65,6 +65,7 @@
             rows="3" 
             name="anamnesis" 
             [(ngModel)]="nuevaConsulta.anamnesis" 
+            (input)="RC.text($event)"
             placeholder="Describa síntomas, tiempo de enfermedad..." 
             required></textarea>
         </div>
@@ -77,6 +78,7 @@
             rows="3" 
             name="diagnostico" 
             [(ngModel)]="nuevaConsulta.diagnostico" 
+            (input)="RC.text($event)"
             placeholder="Diagnóstico clínico presuntivo o definitivo..." 
             required></textarea>
         </div>
@@ -89,6 +91,7 @@
             rows="3" 
             name="tratamiento" 
             [(ngModel)]="nuevaConsulta.tratamiento" 
+            (input)="RC.text($event)"
             placeholder="Medicamentos, dosis, frecuencia y cuidados..." 
             required></textarea>
         </div>

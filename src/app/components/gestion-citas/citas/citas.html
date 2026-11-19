@@ -42,18 +42,30 @@
     </div>
 
     <div class="col-md-6 mb-3">
-      <label class="form-label fw-semibold">Asignar Médico</label>
-      <select class="form-select" [(ngModel)]="nuevaCita.idMedico" name="idMedico" (change)="onMedicoChange()" [disabled]="!especialidadSeleccionada" required>
-        <option value="" disabled selected>
-          {{ especialidadSeleccionada ? 'Seleccione un médico' : 'Primero seleccione una especialidad' }}
-        </option>
-        @for (medico of medicosFiltrados; track medico.id) {
-          <option [value]="medico.id || medico.idMedico">
-            Dr(a). {{ medico.nombre }}
+        <label class="form-label fw-semibold">Asignar Médico</label>
+        <select class="form-select"
+                [class.is-invalid]="medicoNoDisponible"
+                [(ngModel)]="nuevaCita.idMedico"
+                name="idMedico"
+                (change)="onMedicoChange()"
+                [disabled]="!especialidadSeleccionada"
+                required>
+          <option value="" disabled selected>
+            {{ especialidadSeleccionada ? 'Seleccione un médico' : 'Primero seleccione una especialidad' }}
           </option>
+          @for (medico of medicosFiltrados; track medico.id) {
+            <option [value]="medico.id || medico.idMedico"
+                    [disabled]="medico.disponibilidad && medico.disponibilidad.toLowerCase() !== 'disponible'">
+              Dr(a). {{ medico.nombre }} — ({{ medico.disponibilidad || 'disponible' }})
+            </option>
+          }
+        </select>
+        @if (medicoNoDisponible) {
+          <small class="text-danger d-block mt-1">
+            Este médico no está disponible actualmente para nuevas citas.
+          </small>
         }
-      </select>
-    </div>
+      </div>
   </div>
 
   <!-- Fila 3: Fecha, Hora Manual (sincronizada con la tabla) y Duración -->
@@ -68,6 +80,11 @@
         [min]="fechaMinima"
         (ngModelChange)="onFechaManualChange($event)"
         required>
+        @if (fechaEsPasada) {
+          <small class="text-danger d-block mt-1">
+            No se aceptan fechas pasadas.
+          </small>
+        }
     </div>
 
     <div class="col-md-4 mb-3">
@@ -269,7 +286,7 @@
     <button
       type="submit"
       class="btn btn-primary btn-lg px-4 shadow-sm"
-      [disabled]="!nuevaCita.idPaciente || !nuevaCita.idMedico || !nuevaCita.fecha || !nuevaCita.hora">
+      [disabled]="!nuevaCita.idPaciente || !nuevaCita.idMedico || !nuevaCita.fecha || !nuevaCita.hora || fechaEsPasada || medicoNoDisponible">
       Confirmar y Registrar Cita
     </button>
   </div>
